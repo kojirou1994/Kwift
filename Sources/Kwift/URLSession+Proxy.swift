@@ -4,7 +4,7 @@
 //
 //  Created by Kojirou on 2018/7/15.
 //
-
+#if os(macOS)
 import Foundation
 
 extension URLSession {
@@ -42,4 +42,4 @@ extension URLSession {
         self.init(configuration: conf)
     }
 }
-
+#endif

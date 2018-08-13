@@ -16,7 +16,7 @@ public struct LogFileOutputStream: TextOutputStream {
     public init(logPath: String? = nil, terminal: Bool) {
         if logPath != nil {
             if !FileManager.default.fileExists(atPath: logPath!) {
-                FileManager.default.createFile(atPath: logPath!, contents: nil, attributes: nil)
+                _ = FileManager.default.createFile(atPath: logPath!, contents: nil, attributes: nil)
             }
             fileout = FileHandle.init(forWritingAtPath: logPath!)
             fileout?.seekToEndOfFile()

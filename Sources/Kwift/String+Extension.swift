@@ -22,4 +22,32 @@ extension String {
         return self[index(startIndex, offsetBy: i)]
     }
     
+    public var fileURL: URL {
+        return URL.init(fileURLWithPath: self)
+    }
+    
+    public var lastPathComponent: String {
+        return fileURL.lastPathComponent
+    }
+    
+    public var deletingLastPathComponent: String {
+        return fileURL.deletingLastPathComponent().path
+    }
+    
+    public func appendingPathComponent(_ str: String) -> String {
+        return fileURL.appendingPathComponent(str).path
+    }
+    
+    public var pathExtension: String {
+        return fileURL.pathExtension
+    }
+    
+    public var deletingPathExtension: String {
+        return fileURL.deletingPathExtension().path
+    }
+    
+    public func appendingPathExtension(_ str: String) -> String? {
+        return fileURL.appendingPathExtension(str).path
+    }
+    
 }

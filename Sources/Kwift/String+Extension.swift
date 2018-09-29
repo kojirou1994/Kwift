@@ -31,11 +31,11 @@ extension String {
     }
     
     public var deletingLastPathComponent: String {
-        return fileURL.deletingLastPathComponent().path
+        return fileURL.deletingLastPathComponent().relativePath
     }
     
     public func appendingPathComponent(_ str: String) -> String {
-        return fileURL.appendingPathComponent(str).path
+        return fileURL.appendingPathComponent(str).relativePath
     }
     
     public var pathExtension: String {
@@ -43,11 +43,18 @@ extension String {
     }
     
     public var deletingPathExtension: String {
-        return fileURL.deletingPathExtension().path
+        return fileURL.deletingPathExtension().relativePath
     }
     
     public func appendingPathExtension(_ str: String) -> String? {
         return fileURL.appendingPathExtension(str).path
+    }
+    
+    public func safeFilename(_ replacingString: String = "_") -> String {
+            // characterSet contains all illegal characters on OS X and Windows
+        let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|")
+            // replace "-" with character of choice
+        return components(separatedBy: illegalCharacters).joined(separator: replacingString)
     }
     
 }

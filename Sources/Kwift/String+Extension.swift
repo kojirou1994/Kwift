@@ -52,7 +52,7 @@ extension String {
     
     public func safeFilename(_ replacingString: String = "_") -> String {
             // characterSet contains all illegal characters on OS X and Windows
-        let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|")
+        let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
             // replace "-" with character of choice
         return components(separatedBy: illegalCharacters).joined(separator: replacingString)
     }

@@ -18,6 +18,18 @@ extension String {
         return self[index(startIndex, offsetBy: bounds.lowerBound)...index(startIndex, offsetBy: bounds.upperBound)]
     }
     
+    public subscript(bounds: PartialRangeFrom<Int>) -> String.SubSequence {
+        return self[index(startIndex, offsetBy: bounds.lowerBound)...]
+    }
+    
+    public subscript(bounds: PartialRangeUpTo<Int>) -> String.SubSequence {
+        return self[..<index(startIndex, offsetBy: bounds.upperBound)]
+    }
+    
+    public subscript(bounds: PartialRangeThrough<Int>) -> String.SubSequence {
+        return self[...index(startIndex, offsetBy: bounds.upperBound)]
+    }
+    
     public subscript(i: Int) -> Character {
         return self[index(startIndex, offsetBy: i)]
     }

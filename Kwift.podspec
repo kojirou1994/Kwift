@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
   s.name         = "Kwift"
   s.version      = "0.0.1"
   s.summary      = "Personal swift extensions."
-  s.homepage     = "https://github.com/kojirou1994/kwift"
+  s.homepage     = "https://github.com/kojirou1994/Kwift.git"
   s.license      = "MIT"
   s.author             = { "Kojirou" => "Kojirouhtc@gmail.com" }
   s.ios.deployment_target = "10.0"

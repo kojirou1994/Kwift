@@ -5,6 +5,7 @@
 //  Created by Kojirou on 2018/2/3.
 //
 
+#if os(macOS) || os(Linux)
 import Foundation
 
 public enum ExeSearchError: Error {
@@ -33,3 +34,5 @@ extension Process {
     }
 
 }
+
+#endif

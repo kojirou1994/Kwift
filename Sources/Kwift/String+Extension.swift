@@ -58,8 +58,8 @@ extension String {
         return fileURL.deletingPathExtension().relativePath
     }
     
-    public func appendingPathExtension(_ str: String) -> String? {
-        return fileURL.appendingPathExtension(str).path
+    public func appendingPathExtension(_ str: String) -> String {
+        return fileURL.appendingPathExtension(str).relativePath
     }
     
     public func safeFilename(_ replacingString: String = "_") -> String {

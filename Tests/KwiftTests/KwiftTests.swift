@@ -15,6 +15,15 @@ class KwiftTests: XCTestCase {
         }
     }
     
+    func testDecodableExtension() {
+        struct TT: Decodable, Equatable {
+            var key: String
+        }
+        let dic = ["key": "value"]
+        let decoded = try! JSONDecoder().decode(TT.self, from: dic)
+        dump(decoded)
+    }
+    
     static var allTests : [(String, (KwiftTests) -> () throws -> Void)] {
         return [
             ("testStringSubscript", testStringSubscript)

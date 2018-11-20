@@ -10,7 +10,7 @@ import Foundation
 
 public enum ExeSearchError: Error {
     case pathNull
-    case executableNotFound(String)
+    case executableNotFound
 }
 
 extension Process {
@@ -19,18 +19,18 @@ extension Process {
         guard let PATH = ProcessInfo.processInfo.environment["PATH"] else {
             throw ExeSearchError.pathNull
         }
-        let paths = PATH.components(separatedBy: ":")
+        let paths = PATH.split(separator: ":")
         for path in paths {
-            let tmp = URL.init(fileURLWithPath: path).appendingPathComponent(executableName).path
+            let tmp = String(path).appendingPathComponent(executableName)
             if FileManager.default.fileExists(atPath: tmp), FileManager.default.isExecutableFile(atPath: tmp) {
                 self.init()
                 self.launchPath = tmp
-                self.environment = ProcessInfo.processInfo.environment
+//                self.environment = ProcessInfo.processInfo.environment
                 self.arguments = arguments
                 return
             }
         }
-        throw ExeSearchError.executableNotFound(executableName)
+        throw ExeSearchError.executableNotFound
     }
 
 }

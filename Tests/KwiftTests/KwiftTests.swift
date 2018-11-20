@@ -21,12 +21,13 @@ class KwiftTests: XCTestCase {
         }
         let dic = ["key": "value"]
         let decoded = try! JSONDecoder().decode(TT.self, from: dic)
-        dump(decoded)
+        XCTAssertEqual(decoded, TT.init(key: "value"))
     }
     
     static var allTests : [(String, (KwiftTests) -> () throws -> Void)] {
         return [
-            ("testStringSubscript", testStringSubscript)
+            ("testStringSubscript", testStringSubscript),
+            ("testDecodableExtension", testDecodableExtension)
         ]
     }
 }

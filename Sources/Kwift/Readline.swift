@@ -21,16 +21,10 @@ public struct Readline {
         let filehandle = try FileHandle.init(forReadingFrom: path)
     
         func readBuffer() -> Data {
-            #if os(macOS)
-            return autoreleasepool { () -> Data in
+            return autoreleasepoolIfDarwin(invoking: { () -> Data in
                 let buffer = filehandle.readData(ofLength: 4000)
                 return buffer
-            }
-            #else
-            let buffer = filehandle.readData(ofLength: 4000)
-            return buffer
-            #endif
-            
+            })
         }
         
         while case let buffer = readBuffer(),

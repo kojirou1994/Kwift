@@ -27,4 +27,16 @@ extension Executable {
         return try Process.init(executableName: Self.executableName, arguments: arguments)
     }
     
+    public func runAndWait(prepare: ((Process) -> Void)? = nil) throws -> Process {
+        let p = try generateProcess()
+        prepare?(p)
+        if #available(OSX 10.13, *) {
+            try p.run()
+        } else {
+            p.launch()
+        }
+        p.waitUntilExit()
+        return p
+    }
+    
 }

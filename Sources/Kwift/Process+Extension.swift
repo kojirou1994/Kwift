@@ -24,7 +24,11 @@ extension Process {
             let tmp = String(path).appendingPathComponent(executableName)
             if FileManager.default.fileExists(atPath: tmp), FileManager.default.isExecutableFile(atPath: tmp) {
                 self.init()
-                self.launchPath = tmp
+                if #available(OSX 10.13, *) {
+                    self.executableURL = URL.init(fileURLWithPath: tmp)
+                } else {
+                    self.launchPath = tmp
+                }
 //                self.environment = ProcessInfo.processInfo.environment
                 self.arguments = arguments
                 return

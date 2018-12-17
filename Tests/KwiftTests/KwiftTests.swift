@@ -24,6 +24,28 @@ class KwiftTests: XCTestCase {
         XCTAssertEqual(decoded, TT.init(key: "value"))
     }
     
+    @available(OSX 10.13, *)
+    func testExe() {
+        let p = try! Process.init(executableName: "curl", arguments: [])
+        try! p.run()
+        p.waitUntilExit()
+    }
+    
+    func testRusage() {
+        rusage.display()
+    }
+    
+    func testSyncRequest() {
+        let r = URLRequest.init(url: URL.init(string: "https://baidu.com")!)
+        URLSession.shared.sync(request: r) { (data, r, e) in
+            print("url done")
+            sleep(2)
+            dump(r!)
+            print(Thread.current)
+        }
+        print("done")
+    }
+    
     static var allTests : [(String, (KwiftTests) -> () throws -> Void)] {
         return [
             ("testStringSubscript", testStringSubscript),

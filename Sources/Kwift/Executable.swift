@@ -31,11 +31,15 @@ extension Executable {
     public func runAndWait(prepare: ((Process) -> Void)? = nil) throws -> Process {
         let p = try generateProcess()
         prepare?(p)
+        #if os(Linux)
+        p.launch()
+        #else
         if #available(OSX 10.13, *) {
             try p.run()
         } else {
             p.launch()
         }
+        #endif
         p.waitUntilExit()
         return p
     }
@@ -75,9 +79,11 @@ public class ParallelProcess {
         }
     }
     
-    public func add(_ executable: Executable) {
+    public func add(_ executable: Executable, termination: @escaping ((Process) -> Void)) {
         q.addOperation {
-            _ = try? executable.runAndWait()
+            if let p = try? executable.runAndWait() {
+                termination(p)
+            }
         }
     }
     

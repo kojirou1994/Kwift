@@ -10,7 +10,7 @@ import Foundation
 
 public enum ExeSearchError: Error {
     case pathNull
-    case executableNotFound
+    case executableNotFound(String)
 }
 
 extension Process {
@@ -34,7 +34,20 @@ extension Process {
                 return
             }
         }
-        throw ExeSearchError.executableNotFound
+        throw ExeSearchError.executableNotFound(executableName)
+    }
+    
+    @discardableResult
+    public static func run(_ args: [String], wait: Bool = false) throws -> Process {
+        precondition(!args.isEmpty, "args must not be empty")
+        let p = try Process.init(executableName: args[0], arguments: Array(args.dropFirst()))
+        p.launch()
+        if wait {
+            p.waitUntilExit()
+            return p
+        } else {
+            return p
+        }
     }
 
 }

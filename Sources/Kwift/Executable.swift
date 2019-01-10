@@ -54,41 +54,56 @@ extension Executable {
     
 }
 
-public class ParallelProcess {
+public class ProcessOperation: Operation {
     
-    let q: OperationQueue
+    internal let _process: Process
+    
+    public init(process: Process) {
+        _process = process
+    }
+    
+    override public func main() {
+        _process.launch()
+        _process.waitUntilExit()
+    }
+    
+    override public func cancel() {
+        _process.terminate()
+    }
+}
+
+public class ParallelProcessQueue {
+    
+    internal let _queue: OperationQueue
     
     public init() {
-        q = OperationQueue.init()
+        _queue = OperationQueue.init()
     }
     
     public var maxConcurrentCount: Int {
         set {
-            q.maxConcurrentOperationCount = newValue
+            _queue.maxConcurrentOperationCount = newValue
         }
         
         get {
-            return q.maxConcurrentOperationCount
+            return _queue.maxConcurrentOperationCount
         }
     }
     
     public func add(_ process: Process) {
-        q.addOperation {
-            process.launch()
-            process.waitUntilExit()
-        }
+        _queue.addOperation(ProcessOperation.init(process: process))
     }
     
-    public func add(_ executable: Executable, termination: @escaping ((Process) -> Void)) {
-        q.addOperation {
-            if let p = try? executable.runAndWait() {
-                termination(p)
-            }
-        }
+    public func add(_ executable: Executable, termination: @escaping (Process) -> Void) throws {
+        _queue.addOperation(ProcessOperation.init(process: try executable.runAndWait(prepare: { $0.terminationHandler = termination })))
     }
     
     public func waitUntilAllOProcessesAreFinished() {
-        q.waitUntilAllOperationsAreFinished()
+        _queue.waitUntilAllOperationsAreFinished()
+    }
+    
+    public func terminateAllProcesses() {
+        _queue.cancelAllOperations()
     }
     
 }

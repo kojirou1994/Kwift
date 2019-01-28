@@ -7,11 +7,10 @@
 
 import Foundation
 
-#if swift(>=4.2)
-#else
+#if swift(<4.2)
 extension Bool {
-mutating func toggle() {
-self = !self
-}
+    mutating func toggle() {
+        self = !self
+    }
 }
 #endif

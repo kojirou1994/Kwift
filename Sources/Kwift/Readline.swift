@@ -34,7 +34,7 @@ public struct Readline {
                 bufferStartIndex = 0
                 while validBufferLength > 0 {
                     let restBufferSlice = obtainedBuffer[bufferStartIndex..<bufferStartIndex+validBufferLength]
-                    guard let newlineIndex = restBufferSlice.index(of: Readline.delimiter) else {
+                    guard let newlineIndex = restBufferSlice.firstIndex(of: Readline.delimiter) else {
                         // 没有换行，全部转存缓存
                         currentLineBuffer.append(contentsOf: restBufferSlice)
                         validBufferLength = 0

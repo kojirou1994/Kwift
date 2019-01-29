@@ -21,7 +21,7 @@ extension FixedWidthInteger {
         return "0b" + result.joined(separator: "_")
     }
     
-    public func hexString(uppercase: Bool = false) -> String {
+    public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {
         var result: [String] = []
         let count = Self.bitWidth / 8
         for i in 1...count {
@@ -30,7 +30,7 @@ extension FixedWidthInteger {
             let padding = String(repeating: "0", count: 2 - byteString.count)
             result.append(padding + byteString)
         }
-        return "0x" + result.joined(separator: "")
+        return prefix + result.joined(separator: "")
     }
     
     @available(*, unavailable)
@@ -61,7 +61,6 @@ extension Collection where Element == UInt8 {
     
     public func joined<T>(_ type: T.Type) -> T where T : FixedWidthInteger {
         let byteCount = T.bitWidth / 8
-        precondition(self.count >= byteCount, "elements count not enough")
         var result = T.init()
         for element in enumerated() {
             if element.offset == byteCount {
@@ -70,6 +69,10 @@ extension Collection where Element == UInt8 {
             result = (result << 8) | T(element.element)
         }
         return result
+    }
+    
+    public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {
+        return prefix + map {$0.hexString(uppercase: uppercase, prefix: "")}.joined()
     }
     
 }

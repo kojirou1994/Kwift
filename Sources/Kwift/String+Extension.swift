@@ -69,4 +69,11 @@ extension String {
         return components(separatedBy: illegalCharacters).joined(separator: replacingString)
     }
     
+    public var firstUppercased: String {
+        if isEmpty {
+            return ""
+        }
+        let firstC = self[startIndex].uppercased()
+        return replacingCharacters(in: ...startIndex, with: firstC)
+    }
 }

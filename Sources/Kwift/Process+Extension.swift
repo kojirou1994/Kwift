@@ -15,26 +15,31 @@ public enum ExeSearchError: Error {
 
 extension Process {
 
+    private static let PATHs = ProcessInfo.processInfo.environment["PATH", default: ""].split(separator: ":")
+    
     public convenience init(executableName: String, arguments: [String]) throws {
-        guard let PATH = ProcessInfo.processInfo.environment["PATH"] else {
+        let path = try Process.loookup(executableName)
+        self.init()
+        if #available(OSX 10.13, *) {
+            self.executableURL = URL.init(fileURLWithPath: path)
+        } else {
+            self.launchPath = path
+        }
+        self.arguments = arguments
+        
+    }
+    
+    internal static func loookup(_ executable: String) throws -> String {
+        guard Process.PATHs.count > 0 else {
             throw ExeSearchError.pathNull
         }
-        let paths = PATH.split(separator: ":")
-        for path in paths {
-            let tmp = String(path).appendingPathComponent(executableName)
+        for path in Process.PATHs {
+            let tmp = String(path).appendingPathComponent(executable)
             if FileManager.default.isExecutableFile(atPath: tmp) {
-                self.init()
-                if #available(OSX 10.13, *) {
-                    self.executableURL = URL.init(fileURLWithPath: tmp)
-                } else {
-                    self.launchPath = tmp
-                }
-//                self.environment = ProcessInfo.processInfo.environment
-                self.arguments = arguments
-                return
+                return tmp
             }
         }
-        throw ExeSearchError.executableNotFound(executableName)
+        throw ExeSearchError.executableNotFound(executable)
     }
     
     @discardableResult

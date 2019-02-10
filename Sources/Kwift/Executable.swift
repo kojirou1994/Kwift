@@ -28,6 +28,7 @@ extension Executable {
         return try Process.init(executableName: Self.executableName, arguments: arguments)
     }
     
+    @discardableResult
     public func runAndWait(prepare: ((Process) -> Void)? = nil) throws -> Process {
         let p = try generateProcess()
         prepare?(p)
@@ -95,7 +96,9 @@ public class ParallelProcessQueue {
     }
     
     public func add(_ executable: Executable, termination: @escaping (Process) -> Void) throws {
-        _queue.addOperation(ProcessOperation.init(process: try executable.runAndWait(prepare: { $0.terminationHandler = termination })))
+        let p = try executable.generateProcess()
+        p.terminationHandler = termination
+        _queue.addOperation(ProcessOperation.init(process: p))
     }
     
     public func waitUntilAllOProcessesAreFinished() {

@@ -9,7 +9,7 @@ import Foundation
 
 extension URLSession {
     
-    public func sync(request: URLRequest, completionHandler: (Data?, URLResponse?, Error?) -> Void) {
+    public func syncDataTask(request: URLRequest, completionHandler: (Data?, URLResponse?, Error?) -> Void) {
         let cond = NSCondition()
         cond.lock()
         

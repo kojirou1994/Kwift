@@ -9,7 +9,8 @@ import Foundation
 
 extension URLSession {
     
-    public func syncDataTask(request: URLRequest, completionHandler: (Data?, URLResponse?, Error?) -> Void) {
+    @discardableResult
+    public func syncDataTask<T>(request: URLRequest, completionHandler: (Data?, URLResponse?, Error?) throws -> T) rethrows -> T {
         let cond = NSCondition()
         cond.lock()
         
@@ -33,7 +34,7 @@ extension URLSession {
         }
         cond.unlock()
         
-        completionHandler(resData, response, resError)
+        return try completionHandler(resData, response, resError)
     }
     
 }

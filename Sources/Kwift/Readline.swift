@@ -12,14 +12,19 @@ public struct Readline {
 
     static let delimiter: UInt8 = 0x0A
 
-    public static func read(at path: URL, _ handler: (String, Int) -> Void) throws {
+    public static func read(at path: URL,
+                            _ handler: (_ line: String, _ index: Int, _ interrupt: inout Bool) -> Void) throws {
         var obtainedBuffer = Data()
         var currentLineBuffer = Data()
         var currentLineIndex = 0
         var bufferStartIndex = 0
         var validBufferLength = 0
+        var interrupt = false
         let filehandle = try FileHandle.init(forReadingFrom: path)
-    
+        defer {
+            filehandle.closeFile()
+        }
+        
         func readBuffer() -> Data {
             return autoreleasepoolIfDarwin(invoking: { () -> Data in
                 let buffer = filehandle.readData(ofLength: 4000)
@@ -43,7 +48,10 @@ public struct Readline {
                     }
                     // 有换行 转存， index更改
                     currentLineBuffer.append(contentsOf: restBufferSlice[bufferStartIndex..<newlineIndex])
-                    handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex)
+                    handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
+                    if interrupt {
+                        return
+                    }
                     validBufferLength = validBufferLength + bufferStartIndex - newlineIndex - 1
                     bufferStartIndex = newlineIndex + 1
                     currentLineIndex += 1
@@ -51,8 +59,24 @@ public struct Readline {
                 }
         }
         // last line
-        handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex)
-        filehandle.closeFile()
+        handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
+        
     }
 
 }
+
+
+//struct TextLineIterator: IteratorProtocol {
+//    
+//    typealias Element = String
+//    
+//    let encoding: String.Encoding
+//    
+//    init() {
+//        
+//    }
+//    
+//    mutating func next() -> String? {
+//        
+//    }
+//}

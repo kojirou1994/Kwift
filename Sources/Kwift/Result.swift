@@ -7,7 +7,7 @@
 
 import Foundation
 
-#if compiler(<5)
+#if !swift(>=5)
 
 public enum Result<Success, Failure> where Failure : Error {
 
@@ -106,17 +106,6 @@ public enum Result<Success, Failure> where Failure : Error {
         }
     }
 
-    /// Creates a new result by evaluating a throwing closure, capturing the
-    /// returned value as a success, or any thrown error as a failure.
-    ///
-    /// - Parameter body: A throwing closure to evaluate.
-    public init(catching body: () throws -> Success) {
-        do {
-            self = .success(try body())
-        } catch {
-            self = .failure(error)
-        }
-    }
 }
 
 //extension Result {

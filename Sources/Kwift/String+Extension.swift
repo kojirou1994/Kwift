@@ -34,32 +34,45 @@ extension String {
         return self[index(startIndex, offsetBy: i)]
     }
     
-    public var fileURL: URL {
-        return URL.init(fileURLWithPath: self)
+    public var lastPathComponent: String {
+        return (self as NSString).lastPathComponent
     }
     
-    public var lastPathComponent: String {
-        return fileURL.lastPathComponent
+    public var lastPathComponent2: String.SubSequence {
+        let splited = split(separator: "/")
+        if splited.count > 0 {
+            return splited.last!
+        } else {
+            return "/"
+        }
     }
     
     public var deletingLastPathComponent: String {
-        return fileURL.deletingLastPathComponent().relativePath
+        return (self as NSString).deletingLastPathComponent
     }
     
     public func appendingPathComponent(_ str: String) -> String {
-        return fileURL.appendingPathComponent(str).relativePath
+        if hasSuffix("/") {
+            return appending(str)
+        } else {
+            return appending("/\(str)")
+        }
+    }
+    
+    public func appendingPathComponentURL(_ str: String) -> String {
+        return (self as NSString).appendingPathComponent(str)
     }
     
     public var pathExtension: String {
-        return fileURL.pathExtension
+        return (self as NSString).pathExtension
     }
     
     public var deletingPathExtension: String {
-        return fileURL.deletingPathExtension().relativePath
+        return (self as NSString).deletingPathExtension
     }
     
     public func appendingPathExtension(_ str: String) -> String {
-        return fileURL.appendingPathExtension(str).relativePath
+        return (self as NSString).appendingPathExtension(str)!
     }
     
     public func safeFilename(_ replacingString: String = "_") -> String {
@@ -73,7 +86,11 @@ extension String {
         if isEmpty {
             return ""
         }
+        #if swift(>=5.0)
         let firstC = self[startIndex].uppercased()
+        #else
+        let firstC = String(self[startIndex]).uppercased()
+        #endif
         return replacingCharacters(in: ...startIndex, with: firstC)
     }
 }

@@ -7,6 +7,8 @@
 
 import Foundation
 
+#if swift(>=5.0)
+
 @dynamicMemberLookup
 public struct Shell {
     
@@ -72,3 +74,5 @@ public struct Shell {
     }
     
 }
+
+#endif

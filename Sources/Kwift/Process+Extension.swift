@@ -34,7 +34,12 @@ extension Process {
             throw ExeSearchError.pathNull
         }
         for path in Process.PATHs {
-            let tmp = String(path).appendingPathComponent(executable)
+            let tmp: String
+            if path.hasSuffix("/") {
+                tmp = "\(path)\(executable)"
+            } else {
+                tmp = "\(path)/\(executable)"
+            }
             if FileManager.default.isExecutableFile(atPath: tmp) {
                 return tmp
             }

@@ -7,13 +7,30 @@
 //
 
 import Foundation
+import Compatibility
+
+extension Collection where Element == UInt8 {
+    
+    public func enumerateLines(_ block: Readline.ReadlineHandler) {
+        var interrupt = false
+        for line in split(separator: Readline.delimiter).enumerated() {
+            block(String.init(decoding: line.element, as: UTF8.self), line.offset, &interrupt)
+            if interrupt {
+                break
+            }
+        }
+    }
+    
+}
 
 public struct Readline {
 
-    static let delimiter: UInt8 = 0x0A
-
+    fileprivate static let delimiter: UInt8 = 0x0A
+    
+    public typealias ReadlineHandler = (_ line: String, _ index: Int, _ interrupt: inout Bool) -> Void
+    
     public static func read(at path: URL,
-                            _ handler: (_ line: String, _ index: Int, _ interrupt: inout Bool) -> Void) throws {
+                            _ handler: ReadlineHandler) throws {
         var obtainedBuffer = Data()
         var currentLineBuffer = Data()
         var currentLineIndex = 0
@@ -60,23 +77,6 @@ public struct Readline {
         }
         // last line
         handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
-        
     }
 
 }
-
-
-//struct TextLineIterator: IteratorProtocol {
-//    
-//    typealias Element = String
-//    
-//    let encoding: String.Encoding
-//    
-//    init() {
-//        
-//    }
-//    
-//    mutating func next() -> String? {
-//        
-//    }
-//}

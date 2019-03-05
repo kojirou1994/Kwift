@@ -8,7 +8,7 @@
 #if os(macOS) || os(Linux)
 import Foundation
 
-public enum ExeSearchError: Error {
+public enum ExecutableError: Error {
     case pathNull
     case executableNotFound(String)
 }
@@ -31,7 +31,7 @@ extension Process {
     
     internal static func loookup(_ executable: String) throws -> String {
         guard Process.PATHs.count > 0 else {
-            throw ExeSearchError.pathNull
+            throw ExecutableError.pathNull
         }
         for path in Process.PATHs {
             let tmp: String
@@ -44,7 +44,7 @@ extension Process {
                 return tmp
             }
         }
-        throw ExeSearchError.executableNotFound(executable)
+        throw ExecutableError.executableNotFound(executable)
     }
     
     @discardableResult

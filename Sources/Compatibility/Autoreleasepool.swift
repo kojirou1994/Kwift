@@ -7,12 +7,10 @@
 
 import Foundation
 
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 public func autoreleasepoolIfDarwin<Result>(invoking body: () throws -> Result) rethrows -> Result {
+    #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
     return try autoreleasepool(invoking: body)
-}
-#else
-public func autoreleasepoolIfDarwin<Result>(invoking body: () throws -> Result) rethrows -> Result {
+    #else
     return try body()
+    #endif
 }
-#endif

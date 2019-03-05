@@ -37,13 +37,25 @@ class KwiftTests: XCTestCase {
     
     func testSyncRequest() {
         let r = URLRequest.init(url: URL.init(string: "https://baidu.com")!)
-        URLSession.shared.sync(request: r) { (data, r, e) in
+        URLSession.shared.syncDataTask(request: r) { (data, r, e) in
             print("url done")
             sleep(2)
             dump(r!)
             print(Thread.current)
         }
         print("done")
+    }
+    
+    func testByteOperation() {
+        let number = Int.random(in: .min...Int.max)
+        measure {
+            XCTAssertEqual(number, number.splited.joined(Int.self))
+        }
+    }
+    
+    func testCollectionHexString() {
+        print(Data.init([0x01, 0x02]).hexString())
+        print(Data.init([0x00, 0x10, 0xd5]).joined(UInt32.self))
     }
     
     static var allTests : [(String, (KwiftTests) -> () throws -> Void)] {

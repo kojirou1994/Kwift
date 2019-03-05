@@ -38,6 +38,7 @@ extension String {
         return (self as NSString).lastPathComponent
     }
     
+    @available(*, unavailable)
     public var lastPathComponent2: String.SubSequence {
         let splited = split(separator: "/")
         if splited.count > 0 {

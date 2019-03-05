@@ -7,17 +7,47 @@ let package = Package(
     products: [
         .library(
             name: "Kwift",
-            targets: ["Kwift"])
+            targets: ["KwiftUtility",
+                      "Executable",
+                      "Compatibility",
+                      "SwiftEnhancement",
+                      "FoundationEnhancement"]),
+        .library(
+            name: "Executable",
+            targets: ["Executable"]),
+        .library(
+            name: "KwiftUtility",
+            targets: ["KwiftUtility"]),
+        .library(
+            name: "SwiftEnhancement",
+            targets: ["SwiftEnhancement"]),
+        .library(
+            name: "FoundationEnhancement",
+            targets: ["FoundationEnhancement"]),
+        .library(
+            name: "Compatibility",
+            targets: ["Compatibility"])
     ],
-    dependencies: [
-    ],
+    dependencies: [],
     targets: [
         .target(
-            name: "Kwift",
+            name: "Executable",
             dependencies: []),
+        .target(
+            name: "Compatibility",
+            dependencies: []),
+        .target(
+            name: "SwiftEnhancement",
+            dependencies: []),
+        .target(
+            name: "FoundationEnhancement",
+            dependencies: []),
+        .target(
+            name: "KwiftUtility",
+            dependencies: ["Compatibility"]),
         .testTarget(
-            name: "KwiftTests",
-            dependencies: ["Kwift"]),
+            name: "KwiftUtilityTests",
+            dependencies: ["KwiftUtility"]),
     ],
     swiftLanguageVersions: [.v4, .v4_2]
 )

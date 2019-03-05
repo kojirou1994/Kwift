@@ -11,7 +11,22 @@ let package = Package(
                       "Executable",
                       "Compatibility",
                       "SwiftEnhancement",
-                      "FoundationEnhancement"])
+                      "FoundationEnhancement"]),
+        .library(
+            name: "Executable",
+            targets: ["Executable"]),
+        .library(
+            name: "KwiftUtility",
+            targets: ["KwiftUtility"]),
+        .library(
+            name: "SwiftEnhancement",
+            targets: ["SwiftEnhancement"]),
+        .library(
+            name: "FoundationEnhancement",
+            targets: ["FoundationEnhancement"]),
+        .library(
+            name: "Compatibility",
+            targets: ["Compatibility"])
     ],
     dependencies: [],
     targets: [

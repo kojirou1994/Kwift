@@ -14,3 +14,9 @@ public func autoreleasepoolIfDarwin<Result>(invoking body: () throws -> Result) 
     return try body()
     #endif
 }
+
+#if os(Linux)
+public func autoreleasepool<Result>(invoking body: () throws -> Result) rethrows -> Result {
+    return try body()
+}
+#endif

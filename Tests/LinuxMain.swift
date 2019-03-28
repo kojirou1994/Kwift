@@ -1,6 +1,10 @@
 import XCTest
-@testable import KwiftTests
 
-XCTMain([
-    testCase(KwiftTests.allTests),
-])
+import KwiftUtilityTests
+import SwiftEnhancementTests
+
+var tests = [XCTestCaseEntry]()
+tests += KwiftUtilityTests.__allTests()
+tests += SwiftEnhancementTests.__allTests()
+
+XCTMain(tests)

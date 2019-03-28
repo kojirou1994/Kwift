@@ -66,9 +66,13 @@ extension Collection where Element == UInt8 {
             if element.offset == byteCount {
                 break
             }
-            result = (result << 8) | T(element.element)
+            result = (result << 8) | T(truncatingIfNeeded: element.element)
         }
         return result
+    }
+    
+    public func joined<T>() -> T where T : FixedWidthInteger {
+        return joined(T.self)
     }
     
     public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {

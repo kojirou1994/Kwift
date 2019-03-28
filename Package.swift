@@ -50,6 +50,9 @@ let package = Package(
                 "SwiftEnhancement",
                 "FoundationEnhancement"]),
         .testTarget(
+            name: "SwiftEnhancementTests",
+            dependencies: ["SwiftEnhancement"]),
+        .testTarget(
             name: "KwiftUtilityTests",
             dependencies: ["KwiftUtility"]),
     ],

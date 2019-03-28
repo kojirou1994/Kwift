@@ -16,7 +16,7 @@ public class DataHandle {
         currentIndex = offset
     }
     
-    private let data: Data
+    public let data: Data
     
     public init(data: Data) {
         self.data = data
@@ -39,6 +39,10 @@ public class DataHandle {
         return data[currentIndex]
     }
     
+    public var currentByte: UInt8 {
+        return data[currentIndex]
+    }
+    
     public func skip(_ count: Int) {
         precondition((currentIndex + count)<=data.endIndex)
         currentIndex += count
@@ -55,6 +59,10 @@ public class DataHandle {
     
     public var isAtEnd: Bool {
         return currentIndex == (data.endIndex)
+    }
+    
+    public var restBytesCount: Int {
+        return data.endIndex - currentIndex
     }
     
 }

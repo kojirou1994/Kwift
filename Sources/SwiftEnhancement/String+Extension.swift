@@ -98,11 +98,12 @@ extension String {
         return (self as NSString).appendingPathExtension(str)!
     }
     
+    // characterSet contains all illegal characters on OS X and Windows
+    private static let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
+    
     public func safeFilename(_ replacingString: String = "_") -> String {
-            // characterSet contains all illegal characters on OS X and Windows
-        let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
-            // replace "-" with character of choice
-        return components(separatedBy: illegalCharacters).joined(separator: replacingString)
+//        replace "-" with character of choice
+        return components(separatedBy: String.illegalCharacters).joined(separator: replacingString)
     }
     
     public var firstUppercased: String {

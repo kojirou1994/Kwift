@@ -27,7 +27,7 @@ public enum ImageFormat: String, CaseIterable {
         if data.count < headerLength {
             return false
         }
-        let header = data[..<headerLength]
+        let header = data[..<(data.startIndex+headerLength)]
         switch self {
         //        case .gif: return [0xff, 0xd8].elementsEqual(header)
         case .jpeg: return [0xff, 0xd8].elementsEqual(header)

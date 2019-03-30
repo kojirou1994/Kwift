@@ -32,16 +32,17 @@ extension Executable {
     public func runAndWait(prepare: ((Process) -> Void)? = nil) throws -> Process {
         let p = try generateProcess()
         prepare?(p)
-        #if os(Linux)
-        p.launch()
-        #else
-        if #available(OSX 10.13, *) {
-            try p.run()
-        } else {
-            p.launch()
-        }
-        #endif
-        p.waitUntilExit()
+//        #if os(Linux)
+//        p.launch()
+//        #else
+//        if #available(OSX 10.13, *) {
+//            try p.run()
+//        } else {
+//            p.launch()
+//        }
+//        #endif
+//        p.waitUntilExit()
+        try p.kwift_run(wait: true)
         return p
     }
     
@@ -64,8 +65,9 @@ public class ProcessOperation: Operation {
     }
     
     override public func main() {
-        _process.launch()
-        _process.waitUntilExit()
+//        _process.launch()
+//        _process.waitUntilExit()
+        try! _process.kwift_run(wait: true)
     }
     
     override public func cancel() {

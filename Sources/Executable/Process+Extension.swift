@@ -20,20 +20,30 @@ extension Process {
     public convenience init(executableName: String, arguments: [String]) throws {
         let path = try Process.loookup(executableName)
         self.init()
+        #if os(macOS)
         if #available(OSX 10.13, *) {
             self.executableURL = URL.init(fileURLWithPath: path)
         } else {
             self.launchPath = path
         }
+        #else
+        self.executableURL = URL.init(fileURLWithPath: path)
+        #endif
         self.arguments = arguments
         
     }
     
-    internal static func loookup(_ executable: String) throws -> String {
-        guard Process.PATHs.count > 0 else {
+    internal static func loookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
+        let paths: [Substring]
+        if let customPaths = customPaths, customPaths.count > 0 {
+            paths = customPaths
+        } else if Process.PATHs.count > 0 {
+            paths = Process.PATHs
+        } else {
             throw ExecutableError.pathNull
         }
-        for path in Process.PATHs {
+        
+        for path in paths {
             let tmp: String
             if path.hasSuffix("/") {
                 tmp = "\(path)\(executable)"
@@ -55,13 +65,29 @@ extension Process {
         if let prepare = prepare {
             prepare(p)
         }
-        p.launch()
-        if wait {
-            p.waitUntilExit()
-            return p
+        try p.kwift_run(wait: wait)
+        return p
+    }
+    
+    internal func kwift_run(wait: Bool) throws {
+        #if os(macOS)
+        if #available(OSX 10.13, *) {
+            try run()
         } else {
-            return p
+            launch()
         }
+        if wait {
+            waitUntilExit()
+        }
+        #else
+        try run()
+        if wait {
+            while isRunning {
+                Thread.sleep(forTimeInterval: 0.1)
+            }
+        }
+        
+        #endif
     }
 
 }

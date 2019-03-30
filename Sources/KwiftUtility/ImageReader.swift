@@ -4,6 +4,8 @@
 //
 //  Created by Kojirou on 2019/3/28.
 //
+// the code is stolen from:
+// https://github.com/xiph/flac/blob/452a44777892086892feb8ed7f1156e9b897b5c3/src/share/grabbag/picture.c
 
 import Foundation
 

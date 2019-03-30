@@ -18,57 +18,51 @@ public struct Shell {
     
     let background: Bool
     
-    public init(background: Bool = false, preparation: ProcessPreparation? = nil) {
+    let customPaths: [Substring]?
+    
+    public init(background: Bool = false, customPath: String? = nil, preparation: ProcessPreparation? = nil) {
         self.preparation = preparation
+        self.customPaths = customPath?.split(separator: ":")
         self.background = background
     }
     
     public subscript(dynamicMember key: String) -> ShellProcess {
         get {
-            return ShellProcess.init(executable: key, preparation: preparation, background: background)
+            return ShellProcess.init(executablePath: .init(catching: { try Process.loookup(key, customPaths: customPaths)}), preparation: preparation, background: background)
         }
     }
     
     @dynamicCallable
-    @dynamicMemberLookup
+//    @dynamicMemberLookup
     public struct ShellProcess {
-        let executable: String
+        let executablePath: Result<String, Error>
         
         let preparation: ProcessPreparation?
         
         let background: Bool
         
-        fileprivate init(executable: String, preparation: ProcessPreparation?, background: Bool) {
-            self.executable = executable
+        fileprivate init(executablePath: Result<String, Error>, preparation: ProcessPreparation?, background: Bool) {
+            self.executablePath = executablePath
             self.preparation = preparation
             self.background = background
         }
         
-        public subscript(dynamicMember key: String) -> ShellProcess {
-            return .init(executable: executable + "-" + key, preparation: preparation, background: background)
-        }
+//        public subscript(dynamicMember key: String) -> ShellProcess {
+//            return .init(executablePath: executablePath + "-" + key, preparation: preparation, background: background)
+//        }
         
         @discardableResult
-        public func dynamicallyCall(withArguments arguments: [String]) -> Process {
+        public func dynamicallyCall(withArguments arguments: [String]) throws -> Process {
+            let executablePath = try self.executablePath.get()
             let p = Process.init()
-            let path: String
-            do {
-                path = try Process.loookup(executable)
-            } catch {
-                print(error)
-                exit(1)
-            }
             if #available(OSX 10.13, *) {
-                p.executableURL = URL.init(fileURLWithPath: path)
+                p.executableURL = URL.init(fileURLWithPath: executablePath)
             } else {
-                p.launchPath = path
+                p.launchPath = executablePath
             }
             p.arguments = arguments
             preparation?(p)
-            p.launch()
-            if !background {
-                p.waitUntilExit()
-            }
+            try p.kwift_run(wait: !background)
             return p
         }
     }

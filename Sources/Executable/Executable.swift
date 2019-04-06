@@ -29,20 +29,15 @@ extension Executable {
     }
     
     @discardableResult
-    public func runAndWait(prepare: ((Process) -> Void)? = nil) throws -> Process {
+    public func runAndWait(checkNonZeroExitCode: Bool,
+                           beforeRun: ((Process) -> Void)? = nil,
+                           afterRun: ((Process) -> Void)? = nil) throws -> Process {
         let p = try generateProcess()
-        prepare?(p)
-//        #if os(Linux)
-//        p.launch()
-//        #else
-//        if #available(OSX 10.13, *) {
-//            try p.run()
-//        } else {
-//            p.launch()
-//        }
-//        #endif
-//        p.waitUntilExit()
-        try p.kwift_run(wait: true)
+        beforeRun?(p)
+        try p.kwift_run(wait: true, afterRun: afterRun)
+        if checkNonZeroExitCode, p.terminationStatus != 0 {
+            throw ExecutableError.nonZeroExitCode(p.terminationStatus)
+        }
         return p
     }
     
@@ -65,8 +60,6 @@ public class ProcessOperation: Operation {
     }
     
     override public func main() {
-//        _process.launch()
-//        _process.waitUntilExit()
         try! _process.kwift_run(wait: true)
     }
     
@@ -81,6 +74,10 @@ public class ParallelProcessQueue {
     
     public init() {
         _queue = OperationQueue.init()
+    }
+    
+    public var operationCount: Int {
+        return _queue.operationCount
     }
     
     public var maxConcurrentCount: Int {

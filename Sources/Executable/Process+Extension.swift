@@ -11,6 +11,7 @@ import Foundation
 public enum ExecutableError: Error {
     case pathNull
     case executableNotFound(String)
+    case nonZeroExitCode(Int32)
 }
 
 extension Process {
@@ -69,13 +70,14 @@ extension Process {
         return p
     }
     
-    internal func kwift_run(wait: Bool) throws {
+    internal func kwift_run(wait: Bool, afterRun: ((Process) -> Void)? = nil) throws {
         #if os(macOS)
         if #available(OSX 10.13, *) {
             try run()
         } else {
             launch()
         }
+        afterRun?(self)
         if wait {
             waitUntilExit()
         }

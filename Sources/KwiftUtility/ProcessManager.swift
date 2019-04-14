@@ -5,6 +5,7 @@
 //  Created by Kojirou on 2019/4/5.
 //
 
+#if os(macOS) || os(Linux)
 import Foundation
 
 public class SubProcessManager {
@@ -25,7 +26,13 @@ public class SubProcessManager {
         }
     }
     
+    /// add process to manager
+    ///
+    /// - Parameter process: process must be running
     public func add(process: Process) {
+        guard process.isRunning else {
+            return
+        }
         queue.sync {
             _ = self.pids.insert(process.processIdentifier)
         }
@@ -38,3 +45,4 @@ public class SubProcessManager {
     }
     
 }
+#endif

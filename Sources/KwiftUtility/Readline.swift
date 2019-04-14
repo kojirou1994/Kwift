@@ -13,12 +13,17 @@ extension Collection where Element == UInt8 {
     
     public func enumerateLines(_ block: Readline.ReadlineHandler) {
         var interrupt = false
-        for line in split(separator: Readline.delimiter).enumerated() {
-            block(String.init(decoding: line.element, as: UTF8.self), line.offset, &interrupt)
+        var offset = 0
+        var start = startIndex
+        while let delimiterIndex = self[start...].firstIndex(of: Readline.delimiter) {
+            block(String.init(decoding: self[start..<delimiterIndex], as: UTF8.self), offset, &interrupt)
             if interrupt {
-                break
+                return
             }
+            start = self.index(after: delimiterIndex)
+            offset += 1
         }
+        block(String.init(decoding: self[start...], as: UTF8.self), offset, &interrupt)
     }
     
 }
@@ -43,7 +48,7 @@ public struct Readline {
         }
         
         func readBuffer() -> Data {
-            return autoreleasepoolIfDarwin(invoking: { () -> Data in
+            return autoreleasepool(invoking: { () -> Data in
                 let buffer = filehandle.readData(ofLength: 4000)
                 return buffer
             })

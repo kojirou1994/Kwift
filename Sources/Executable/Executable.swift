@@ -18,7 +18,7 @@ public protocol Executable: CustomStringConvertible {
     ///
     /// - Returns: Process ready for launching
     /// - Throws: ExeSearchError
-    func generateProcess() throws -> Process
+//    func generateProcess() throws -> Process
     
 }
 
@@ -39,6 +39,14 @@ extension Executable {
             throw ExecutableError.nonZeroExitCode(p.terminationStatus)
         }
         return p
+    }
+    
+    public func runAndCatch(checkNonZeroExitCode: Bool) throws -> LaunchResult {
+        let result = try generateProcess().catchResult()
+        if checkNonZeroExitCode, result.process.terminationStatus != 0 {
+            throw ExecutableError.nonZeroExitCode(result.process.terminationStatus)
+        }
+        return result
     }
     
     public var description: String {

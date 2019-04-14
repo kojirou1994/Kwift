@@ -16,7 +16,11 @@ public enum ExecutableError: Error {
 
 extension Process {
 
-    private static let PATHs = ProcessInfo.processInfo.environment["PATH", default: ""].split(separator: ":")
+    private static var PATHs = ProcessInfo.processInfo.environment["PATH", default: ""].split(separator: ":")
+    
+    public static func set(path: String) {
+        Process.PATHs = path.split(separator: ":")
+    }
     
     public convenience init(executableName: String, arguments: [String]) throws {
         let path = try Process.loookup(executableName)
@@ -46,11 +50,12 @@ extension Process {
         
         for path in paths {
             let tmp: String
-            if path.hasSuffix("/") {
-                tmp = "\(path)\(executable)"
-            } else {
-                tmp = "\(path)/\(executable)"
-            }
+//            if path.hasSuffix("/") {
+//                tmp = "\(path)\(executable)"
+//            } else {
+//                tmp = "\(path)/\(executable)"
+//            }
+            tmp = "\(path)/\(executable)"
             if FileManager.default.isExecutableFile(atPath: tmp) {
                 return tmp
             }

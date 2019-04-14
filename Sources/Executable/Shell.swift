@@ -14,21 +14,21 @@ public struct Shell {
     
     public typealias ProcessPreparation = (Process) -> Void
     
-    public var preparation: ProcessPreparation?
+    public var beforeRun: ProcessPreparation?
     
     let background: Bool
     
     let customPaths: [Substring]?
     
-    public init(background: Bool = false, customPath: String? = nil, preparation: ProcessPreparation? = nil) {
-        self.preparation = preparation
+    public init(background: Bool = false, customPath: String? = nil, beforeRun: ProcessPreparation? = nil) {
+        self.beforeRun = beforeRun
         self.customPaths = customPath?.split(separator: ":")
         self.background = background
     }
     
     public subscript(dynamicMember key: String) -> ShellProcess {
         get {
-            return ShellProcess.init(executablePath: .init(catching: { try Process.loookup(key, customPaths: customPaths)}), preparation: preparation, background: background)
+            return ShellProcess.init(executablePath: .init(catching: { try Process.loookup(key, customPaths: customPaths)}), beforeRun: beforeRun, background: background)
         }
     }
     
@@ -37,13 +37,13 @@ public struct Shell {
     public struct ShellProcess {
         let executablePath: Result<String, Error>
         
-        let preparation: ProcessPreparation?
+        let beforeRun: ProcessPreparation?
         
         let background: Bool
         
-        fileprivate init(executablePath: Result<String, Error>, preparation: ProcessPreparation?, background: Bool) {
+        fileprivate init(executablePath: Result<String, Error>, beforeRun: ProcessPreparation?, background: Bool) {
             self.executablePath = executablePath
-            self.preparation = preparation
+            self.beforeRun = beforeRun
             self.background = background
         }
         
@@ -51,22 +51,65 @@ public struct Shell {
 //            return .init(executablePath: executablePath + "-" + key, preparation: preparation, background: background)
 //        }
         
-        @discardableResult
-        public func dynamicallyCall(withArguments arguments: [String]) throws -> Process {
+//        @discardableResult
+        public func dynamicallyCall(withArguments arguments: [String]) throws -> LaunchResult {
             let executablePath = try self.executablePath.get()
-            let p = Process.init()
+            let process = Process.init()
             if #available(OSX 10.13, *) {
-                p.executableURL = URL.init(fileURLWithPath: executablePath)
+                process.executableURL = URL.init(fileURLWithPath: executablePath)
             } else {
-                p.launchPath = executablePath
+                process.launchPath = executablePath
             }
-            p.arguments = arguments
-            preparation?(p)
-            try p.kwift_run(wait: !background)
-            return p
+            process.arguments = arguments
+            beforeRun?(process)
+            
+            return try process.catchResult()
         }
+        
     }
     
+}
+
+internal extension Process {
+    func catchResult() throws -> LaunchResult {
+        let copyQueue = DispatchQueue.init(label: UUID().uuidString)
+        let stderr = Pipe()
+        let stdout = Pipe()
+        self.standardError = stderr
+        self.standardOutput = stdout
+        
+        var stdoutData = Data()
+        var stderrData  = Data()
+        stderr.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            copyQueue.async {
+                stderrData.append(data)
+            }
+        }
+        
+        stdout.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            copyQueue.async {
+                stdoutData.append(data)
+            }
+        }
+        try self.kwift_run(wait: true)
+        stdout.fileHandleForReading.readabilityHandler = nil
+        stderr.fileHandleForReading.readabilityHandler = nil
+        return copyQueue.sync {
+            return LaunchResult.init(process: self, stdout: stdoutData, stderr: stderrData)
+        }
+    }
+}
+
+public struct LaunchResult {
+    public let process: Process
+    public let stdout: Data
+    public let stderr: Data
+    
+    public var terminationStatus: Int32 {
+        return process.terminationStatus
+    }
 }
 
 #endif

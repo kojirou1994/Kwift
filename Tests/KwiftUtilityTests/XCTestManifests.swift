@@ -7,7 +7,6 @@ extension KwiftUtilityTests {
     // to regenerate.
     static let __allTests__KwiftUtilityTests = [
         ("testByteOperation", testByteOperation),
-        ("testCollectionHexString", testCollectionHexString),
     ]
 }
 

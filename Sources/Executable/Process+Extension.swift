@@ -23,7 +23,7 @@ extension Process {
     }
     
     public convenience init(executableName: String, arguments: [String]) throws {
-        let path = try Process.loookup(executableName)
+        let path = try Process.lookup(executableName)
         self.init()
         #if os(macOS)
         if #available(OSX 10.13, *) {
@@ -38,7 +38,7 @@ extension Process {
         
     }
     
-    internal static func loookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
+    internal static func lookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
         let paths: [Substring]
         if let customPaths = customPaths, customPaths.count > 0 {
             paths = customPaths
@@ -49,13 +49,7 @@ extension Process {
         }
         
         for path in paths {
-            let tmp: String
-//            if path.hasSuffix("/") {
-//                tmp = "\(path)\(executable)"
-//            } else {
-//                tmp = "\(path)/\(executable)"
-//            }
-            tmp = "\(path)/\(executable)"
+            let tmp = "\(path)/\(executable)"
             if FileManager.default.isExecutableFile(atPath: tmp) {
                 return tmp
             }
@@ -65,12 +59,10 @@ extension Process {
     
     @discardableResult
     public static func run(_ args: [String], wait: Bool = false,
-                           prepare: ((Process) -> Void)? = nil) throws -> Process {
+                           beforeRun: ((Process) -> Void)? = nil) throws -> Process {
         precondition(!args.isEmpty, "args must not be empty")
         let p = try Process.init(executableName: args[0], arguments: Array(args.dropFirst()))
-        if let prepare = prepare {
-            prepare(p)
-        }
+        beforeRun?(p)
         try p.kwift_run(wait: wait)
         return p
     }
@@ -88,12 +80,12 @@ extension Process {
         }
         #else
         try run()
+        afterRun?(self)
         if wait {
             while isRunning {
                 Thread.sleep(forTimeInterval: 0.1)
             }
         }
-        
         #endif
     }
 

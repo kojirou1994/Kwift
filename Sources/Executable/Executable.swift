@@ -14,12 +14,6 @@ public protocol Executable: CustomStringConvertible {
     
     var arguments: [String] {get}
     
-    ///
-    ///
-    /// - Returns: Process ready for launching
-    /// - Throws: ExeSearchError
-//    func generateProcess() throws -> Process
-    
 }
 
 extension Executable {
@@ -72,7 +66,11 @@ public class ProcessOperation: Operation {
     }
     
     override public func cancel() {
+        #if os(macOS)
         _process.terminate()
+        #else
+        kill(_process.processIdentifier, SIGTERM)
+        #endif
     }
 }
 

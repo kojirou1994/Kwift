@@ -118,3 +118,17 @@ extension String {
         return replacingCharacters(in: ...startIndex, with: firstC)
     }
 }
+
+extension StringProtocol {
+    
+    public func ranges<T>(of aString: T, options mask: String.CompareOptions = [], locale: Locale? = nil) -> [Range<Self.Index>] where T : StringProtocol {
+        var result = [Range<Self.Index>]()
+        var start = startIndex
+        while let range = range(of: aString, options: mask, range: start..<endIndex, locale: locale) {
+            result.append(range)
+            start = range.upperBound
+        }
+        return result
+    }
+    
+}

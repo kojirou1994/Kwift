@@ -28,7 +28,7 @@ public struct Shell {
     
     public subscript(dynamicMember key: String) -> ShellProcess {
         get {
-            return ShellProcess.init(executablePath: .init(catching: { try Process.loookup(key, customPaths: customPaths)}), beforeRun: beforeRun, background: background)
+            return ShellProcess.init(executablePath: .init(catching: { try Process.lookup(key, customPaths: customPaths)}), beforeRun: beforeRun, background: background)
         }
     }
     
@@ -55,11 +55,15 @@ public struct Shell {
         public func dynamicallyCall(withArguments arguments: [String]) throws -> LaunchResult {
             let executablePath = try self.executablePath.get()
             let process = Process.init()
+            #if os(macOS)
             if #available(OSX 10.13, *) {
                 process.executableURL = URL.init(fileURLWithPath: executablePath)
             } else {
                 process.launchPath = executablePath
             }
+            #else
+            process.executableURL = URL.init(fileURLWithPath: executablePath)
+            #endif
             process.arguments = arguments
             beforeRun?(process)
             
@@ -69,9 +73,13 @@ public struct Shell {
     }
     
 }
+#endif
 
+#if os(macOS) || os(Linux)
 internal extension Process {
+    
     func catchResult() throws -> LaunchResult {
+        #if os(macOS)
         let copyQueue = DispatchQueue.init(label: UUID().uuidString)
         let stderr = Pipe()
         let stdout = Pipe()
@@ -99,6 +107,24 @@ internal extension Process {
         return copyQueue.sync {
             return LaunchResult.init(process: self, stdout: stdoutData, stderr: stderrData)
         }
+        #else
+        let stderr = URL.init(fileURLWithPath: "\(NSTemporaryDirectory())/\(UUID().uuidString)")
+        let stdout = URL.init(fileURLWithPath: "\(NSTemporaryDirectory())/\(UUID().uuidString)")
+        #if DEBUG
+        print("stderr redirect: \(stderr)")
+        print("stdout redirect: \(stdout)")
+        #endif
+        FileManager.default.createFile(atPath: stderr.path, contents: nil, attributes: nil)
+        FileManager.default.createFile(atPath: stdout.path, contents: nil, attributes: nil)
+        let stderrF = try FileHandle.init(forWritingTo: stderr)
+        let stdoutF = try FileHandle.init(forWritingTo: stdout)
+        standardError = stderrF
+        standardOutput = stdoutF
+        try self.kwift_run(wait: true)
+        stderrF.closeFile()
+        stdoutF.closeFile()
+        return try LaunchResult.init(process: self, stdout: .init(contentsOf: stdout), stderr: .init(contentsOf: stderr))
+        #endif
     }
 }
 

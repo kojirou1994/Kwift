@@ -5,7 +5,6 @@
 //  Created by Kojirou on 2018/2/3.
 //
 
-#if os(macOS) || os(Linux)
 import Foundation
 
 public enum ExecutableError: Error {
@@ -90,5 +89,3 @@ extension Process {
     }
 
 }
-
-#endif

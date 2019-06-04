@@ -7,8 +7,6 @@
 
 import Foundation
 
-#if swift(>=5.0)
-
 @dynamicMemberLookup
 public struct Shell {
     
@@ -73,9 +71,7 @@ public struct Shell {
     }
     
 }
-#endif
 
-#if os(macOS) || os(Linux)
 internal extension Process {
     
     func catchResult() throws -> LaunchResult {
@@ -116,14 +112,18 @@ internal extension Process {
         #endif
         FileManager.default.createFile(atPath: stderr.path, contents: nil, attributes: nil)
         FileManager.default.createFile(atPath: stdout.path, contents: nil, attributes: nil)
-        let stderrF = try FileHandle.init(forWritingTo: stderr)
-        let stdoutF = try FileHandle.init(forWritingTo: stdout)
+        let stderrF = try FileHandle.init(forUpdating: stderr)
+        let stdoutF = try FileHandle.init(forUpdating: stdout)
         standardError = stderrF
         standardOutput = stdoutF
         try self.kwift_run(wait: true)
-        stderrF.closeFile()
-        stdoutF.closeFile()
-        return try LaunchResult.init(process: self, stdout: .init(contentsOf: stdout), stderr: .init(contentsOf: stderr))
+        stderrF.seek(toFileOffset: 0)
+        stdoutF.seek(toFileOffset: 0)
+        defer {
+            stderrF.closeFile()
+            stdoutF.closeFile()
+        }
+        return try LaunchResult.init(process: self, stdout: stdoutF.availableData, stderr: stderrF.availableData)
         #endif
     }
 }
@@ -137,5 +137,3 @@ public struct LaunchResult {
         return process.terminationStatus
     }
 }
-
-#endif

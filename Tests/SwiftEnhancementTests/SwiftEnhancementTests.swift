@@ -16,6 +16,13 @@ class SwiftEnhancementTests: XCTestCase {
         }
     }
     
+    func testUnwrapOptional() {
+        let nilValue: Int? = nil
+        XCTAssertThrowsError(try nilValue.unwrap())
+        let value: Int? = 5
+        XCTAssertNoThrow(try value.unwrap())
+    }
+    
     static var allTests : [(String, (SwiftEnhancementTests) -> () throws -> Void)] {
         return [
             ("testStringSubscript", testStringSubscript),

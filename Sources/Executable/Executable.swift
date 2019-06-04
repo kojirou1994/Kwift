@@ -7,7 +7,6 @@
 
 import Foundation
 
-#if os(macOS) || os(Linux)
 public protocol Executable: CustomStringConvertible {
     
     static var executableName: String {get}
@@ -115,4 +114,3 @@ public class ParallelProcessQueue {
     }
     
 }
-#endif

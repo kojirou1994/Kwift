@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if os(macOS) || os(Linux)
 public enum ExecutableError: Error {
     case pathNull
     case executableNotFound(String)
@@ -89,3 +90,4 @@ extension Process {
     }
 
 }
+#endif

@@ -2,70 +2,61 @@
 
 import PackageDescription
 
-var products: [Product] = [
-    .library(
-        name: "Kwift",
-        targets: ["Kwift"]),
-    .library(
-        name: "KwiftUtility",
-        targets: ["KwiftUtility"]),
-    .library(
-        name: "SwiftEnhancement",
-        targets: ["SwiftEnhancement"]),
-    .library(
-        name: "FoundationEnhancement",
-        targets: ["FoundationEnhancement"]),
-    .library(
-        name: "Compatibility",
-        targets: ["Compatibility"])
-]
-
-var targets: [Target] = [
-
-    .target(
-        name: "Compatibility",
-        dependencies: []),
-    .target(
-        name: "SwiftEnhancement",
-        dependencies: []),
-    .target(
-        name: "FoundationEnhancement",
-        dependencies: []),
-    .target(
-        name: "KwiftUtility",
-        dependencies: ["Compatibility"]),
-    
-    .testTarget(
-        name: "SwiftEnhancementTests",
-        dependencies: ["SwiftEnhancement"]),
-    .testTarget(
-        name: "KwiftUtilityTests",
-        dependencies: ["KwiftUtility"]),
-]
-
-var kwiftDependnecies: [Target.Dependency] = [
-    "KwiftUtility",
-    "Compatibility",
-    "SwiftEnhancement",
-    "FoundationEnhancement"
-]
-
-#if os(macOS) || os(Linux)
-products.append(.library(name: "Executable", targets: ["Executable"]))
-
-targets.append(.target(name: "Executable", dependencies: []))
-targets.append(.testTarget(name: "ExecutableTests", dependencies: ["Executable"]))
-kwiftDependnecies.append("Executable")
-#endif
-
-targets.append(.target(
-    name: "Kwift",
-    dependencies: kwiftDependnecies))
-
 let package = Package(
     name: "Kwift",
-    products: products,
+    products: [
+        .library(
+            name: "Kwift",
+            targets: ["Kwift"]),
+        .library(
+            name: "Executable",
+            targets: ["Executable"]),
+        .library(
+            name: "KwiftUtility",
+            targets: ["KwiftUtility"]),
+        .library(
+            name: "SwiftEnhancement",
+            targets: ["SwiftEnhancement"]),
+        .library(
+            name: "FoundationEnhancement",
+            targets: ["FoundationEnhancement"]),
+        .library(
+            name: "Compatibility",
+            targets: ["Compatibility"])
+    ],
     dependencies: [],
-    targets: targets,
+    targets: [
+        .target(
+            name: "Executable",
+            dependencies: []),
+        .target(
+            name: "Compatibility",
+            dependencies: []),
+        .target(
+            name: "SwiftEnhancement",
+            dependencies: []),
+        .target(
+            name: "FoundationEnhancement",
+            dependencies: []),
+        .target(
+            name: "KwiftUtility",
+            dependencies: ["Compatibility"]),
+        .target(
+            name: "Kwift",
+            dependencies: [
+                "KwiftUtility",
+                "Compatibility",
+                "SwiftEnhancement",
+                "FoundationEnhancement"]),
+        .testTarget(
+            name: "ExecutableTests",
+            dependencies: ["Executable"]),
+        .testTarget(
+            name: "SwiftEnhancementTests",
+            dependencies: ["SwiftEnhancement"]),
+        .testTarget(
+            name: "KwiftUtilityTests",
+            dependencies: ["KwiftUtility"]),
+    ],
     swiftLanguageVersions: [.v4, .v4_2, .v5]
 )

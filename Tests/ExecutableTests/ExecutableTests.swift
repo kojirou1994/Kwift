@@ -1,6 +1,7 @@
 import XCTest
 @testable import Executable
 
+#if os(macOS) || os(Linux)
 class ExecutableTests: XCTestCase {
     
     struct Curl: Executable {
@@ -45,3 +46,4 @@ class ExecutableTests: XCTestCase {
         ]
     }
 }
+#endif

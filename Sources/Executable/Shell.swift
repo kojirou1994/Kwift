@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if os(macOS) || os(Linux)
 @dynamicMemberLookup
 public struct Shell {
     
@@ -137,3 +138,4 @@ public struct LaunchResult {
         return process.terminationStatus
     }
 }
+#endif

@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if os(macOS) || os(Linux)
 public protocol Executable: CustomStringConvertible {
     
     static var executableName: String {get}
@@ -15,6 +16,7 @@ public protocol Executable: CustomStringConvertible {
     
 }
 
+@available(OSX 10.10, *)
 extension Executable {
     
     public func generateProcess() throws -> Process {
@@ -114,3 +116,4 @@ public class ParallelProcessQueue {
     }
     
 }
+#endif

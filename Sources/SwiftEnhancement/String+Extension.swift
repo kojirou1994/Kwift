@@ -110,11 +110,7 @@ extension String {
         if isEmpty {
             return ""
         }
-        #if swift(>=5.0)
         let firstC = self[startIndex].uppercased()
-        #else
-        let firstC = String(self[startIndex]).uppercased()
-        #endif
         return replacingCharacters(in: ...startIndex, with: firstC)
     }
 }

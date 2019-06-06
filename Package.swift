@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.1
 
 import PackageDescription
 
@@ -58,5 +58,5 @@ let package = Package(
             name: "KwiftUtilityTests",
             dependencies: ["KwiftUtility"]),
     ],
-    swiftLanguageVersions: [.v4, .v4_2, .v5]
+    swiftLanguageVersions: [.v5]
 )

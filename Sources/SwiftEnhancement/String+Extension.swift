@@ -71,7 +71,9 @@ extension String {
     
     @inlinable
     public func appendingPathComponent(_ str: String) -> String {
-        if hasSuffix("/") {
+        if isEmpty {
+            return str
+        } else if hasSuffix("/") {
             return appending(str)
         } else {
             return appending("/\(str)")

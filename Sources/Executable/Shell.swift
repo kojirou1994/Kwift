@@ -27,7 +27,7 @@ public struct Shell {
     
     public subscript(dynamicMember key: String) -> ShellProcess {
         get {
-            return ShellProcess.init(executablePath: .init(catching: { try Process.lookup(key, customPaths: customPaths)}), beforeRun: beforeRun, background: background)
+            return ShellProcess.init(executablePath: .init(catching: { try ExecutablePath.lookup(key, customPaths: customPaths)}), beforeRun: beforeRun, background: background)
         }
     }
     
@@ -124,7 +124,7 @@ internal extension Process {
             stderrF.closeFile()
             stdoutF.closeFile()
         }
-        return try LaunchResult.init(process: self, stdout: stdoutF.availableData, stderr: stderrF.availableData)
+        return LaunchResult.init(process: self, stdout: stdoutF.availableData, stderr: stderrF.availableData)
         #endif
     }
 }

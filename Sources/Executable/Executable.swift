@@ -8,19 +8,79 @@
 import Foundation
 
 #if os(macOS) || os(Linux)
+public enum ExecutableError: Error {
+    case pathNull
+    case executableNotFound(String)
+    case nonZeroExitCode(Int32)
+}
+
+public struct ExecutablePath {
+    
+    private static var PATHs = ProcessInfo.processInfo.environment["PATH", default: ""].split(separator: ":")
+    
+    public static func set(_ path: String) {
+        ExecutablePath.PATHs = path.split(separator: ":")
+    }
+    
+    internal static func lookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
+        let paths: [Substring]
+        if let customPaths = customPaths, customPaths.count > 0 {
+            paths = customPaths
+        } else if ExecutablePath.PATHs.count > 0 {
+            paths = ExecutablePath.PATHs
+        } else {
+            throw ExecutableError.pathNull
+        }
+        
+        for path in paths {
+            let tmp = "\(path)/\(executable)"
+            if FileManager.default.isExecutableFile(atPath: tmp) {
+                return tmp
+            }
+        }
+        throw ExecutableError.executableNotFound(executable)
+    }
+}
+
 public protocol Executable: CustomStringConvertible {
     
     static var executableName: String {get}
     
     var arguments: [String] {get}
     
+    var executableURL: URL { get }
+    
+    var executableName: String { get }
+    
 }
 
-@available(OSX 10.10, *)
 extension Executable {
     
+    public var executableURL: URL {
+        return .init(fileURLWithPath: try! ExecutablePath.lookup(executableName))
+    }
+    
+    public var executableName: String {
+        return Self.executableName
+    }
+    
+    public static func check() throws {
+        _ = try ExecutablePath.lookup(Self.executableName)
+    }
+    
     public func generateProcess() throws -> Process {
-        return try Process.init(executableName: Self.executableName, arguments: arguments)
+        let process = Process.init()
+        #if os(macOS)
+        if #available(OSX 10.13, *) {
+            process.executableURL = executableURL
+        } else {
+            process.launchPath = executableURL.absoluteString
+        }
+        #else
+        process.executableURL = executableURL
+        #endif
+        process.arguments = arguments
+        return process
     }
     
     @discardableResult
@@ -51,6 +111,23 @@ extension Executable {
     public var commandLine: [String] {
         return [Self.executableName] + arguments
     }
+    
+}
+
+public struct AnyExecutable: Executable {
+    
+    public static var executableName: String {
+        fatalError()
+    }
+    
+    public init(executableName: String, arguments: [String]) {
+        self.executableName = executableName
+        self.arguments = arguments
+    }
+    
+    public let executableName: String
+    
+    public let arguments: [String]
     
 }
 

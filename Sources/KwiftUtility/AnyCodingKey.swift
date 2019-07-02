@@ -10,11 +10,9 @@ public struct AnyCodingKey: CodingKey {
         self.key = key
     }
     
-    public var stringValue: String {key}
+    public var stringValue: String { return key }
     
-    public var intValue: Int? {nil}
+    public var intValue: Int? { return nil }
     
-    public init?(intValue: Int) {
-        nil
-    }
+    public init?(intValue: Int) { return nil }
 }

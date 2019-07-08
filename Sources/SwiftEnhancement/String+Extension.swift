@@ -49,57 +49,6 @@ extension String {
         return self[index(startIndex, offsetBy: i)]
     }
     
-    @inlinable
-    public var lastPathComponent: String {
-        return (self as NSString).lastPathComponent
-    }
-    
-    @available(*, unavailable)
-    public var lastPathComponent2: String.SubSequence {
-        let splited = split(separator: "/")
-        if splited.count > 0 {
-            return splited.last!
-        } else {
-            return "/"
-        }
-    }
-    
-    @inlinable
-    public var deletingLastPathComponent: String {
-        return (self as NSString).deletingLastPathComponent
-    }
-    
-    @inlinable
-    public func appendingPathComponent(_ str: String) -> String {
-        if isEmpty {
-            return str
-        } else if hasSuffix("/") {
-            return appending(str)
-        } else {
-            return appending("/\(str)")
-        }
-    }
-    
-    @inlinable
-    public func appendingPathComponentURL(_ str: String) -> String {
-        return (self as NSString).appendingPathComponent(str)
-    }
-    
-    @inlinable
-    public var pathExtension: String {
-        return (self as NSString).pathExtension
-    }
-    
-    @inlinable
-    public var deletingPathExtension: String {
-        return (self as NSString).deletingPathExtension
-    }
-    
-    @inlinable
-    public func appendingPathExtension(_ str: String) -> String {
-        return (self as NSString).appendingPathExtension(str)!
-    }
-    
     // characterSet contains all illegal characters on OS X and Windows
     private static let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
     

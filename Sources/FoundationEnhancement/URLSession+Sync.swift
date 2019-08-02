@@ -50,7 +50,7 @@ extension URLSession {
     
     public enum CodableTaskError: Error {
         case noData
-        case network(NSError)
+        case network(URLError)
         case decoder(DecodingError)
     }
     
@@ -58,7 +58,7 @@ extension URLSession {
         -> (Data?, URLResponse?, Error?) -> Void where T: Decodable {
             return { (data, response, error) in
                 guard error == nil else {
-                    completionHandler(.failure(.network(error! as NSError)))
+                    completionHandler(.failure(.network(error as! URLError)))
                     return
                 }
                 guard let data = data else {
@@ -85,7 +85,7 @@ extension URLSession {
     public func syncCodableTask<T>(with request: URLRequest) throws -> T where T: Decodable {
         return try syncDataTask(request: request) { (data, r, error) -> Result<T, CodableTaskError> in
             guard error == nil else {
-                return .failure(.network(error! as NSError))
+                return .failure(.network(error as! URLError))
             }
             guard let data = data else {
                 return .failure(.noData)

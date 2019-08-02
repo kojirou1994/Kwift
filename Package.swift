@@ -7,7 +7,8 @@ let package = Package(
     products: [
         .library(
             name: "Kwift",
-            targets: ["Kwift"]),
+            targets: ["KwiftUtility", "Compatibility",
+                      "SwiftEnhancement", "FoundationEnhancement"]),
         .library(
             name: "Executable",
             targets: ["Executable"]),
@@ -41,13 +42,6 @@ let package = Package(
         .target(
             name: "KwiftUtility",
             dependencies: ["Compatibility"]),
-        .target(
-            name: "Kwift",
-            dependencies: [
-                "KwiftUtility",
-                "Compatibility",
-                "SwiftEnhancement",
-                "FoundationEnhancement"]),
         .testTarget(
             name: "ExecutableTests",
             dependencies: ["Executable"]),

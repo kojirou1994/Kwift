@@ -1,10 +1,3 @@
-//
-//  StderrOutputStream.swift
-//  Kwift
-//
-//  Created by Kojirou on 2018/8/27.
-//
-
 import Foundation
 
 public struct StderrOutputStream: TextOutputStream {
@@ -13,4 +6,14 @@ public struct StderrOutputStream: TextOutputStream {
     }
 }
 
-public var stderrOutputStream = StderrOutputStream.init()
+public struct StdoutOutputStream: TextOutputStream {
+    public func write(_ string: String) {
+        fputs(string, stdout)
+    }
+}
+
+public struct StdOutputStream {
+    public static var stderrOutputStream = StderrOutputStream()
+
+    public static var stdoutOutputStream = StdoutOutputStream()
+}

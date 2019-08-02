@@ -36,9 +36,10 @@ extension FixedWidthInteger {
     @available(*, unavailable)
     public func split() -> [UInt8] {
         var result = [UInt8]()
+        let count = Self.bitWidth / 8
+        result.reserveCapacity(count)
         withUnsafeBytes(of: self) { (p) -> Void in
             let new = p.bindMemory(to: UInt8.self)
-            let count = Self.bitWidth / 8
             for i in 0..<count {
                 result.append(new[i])
             }

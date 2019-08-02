@@ -7,6 +7,7 @@
 
 import Foundation
 
+@inlinable
 public func autoreleasepoolIfDarwin<Result>(invoking body: () throws -> Result) rethrows -> Result {
     #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
     return try autoreleasepool(invoking: body)
@@ -16,6 +17,7 @@ public func autoreleasepoolIfDarwin<Result>(invoking body: () throws -> Result) 
 }
 
 #if os(Linux)
+@inlinable
 public func autoreleasepool<Result>(invoking body: () throws -> Result) rethrows -> Result {
     return try body()
 }

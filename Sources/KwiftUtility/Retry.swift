@@ -1,4 +1,5 @@
 @discardableResult
+@inlinable
 public func retry<T>(body: @autoclosure () throws -> T, count: UInt = 3,
                        onError: ((UInt, Error) ->Void)?) rethrows -> T {
     for i in 0...count {

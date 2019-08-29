@@ -1,10 +1,3 @@
-//
-//  ProcessManager.swift
-//  KwiftUtility
-//
-//  Created by Kojirou on 2019/4/5.
-//
-
 #if os(macOS) || os(Linux)
 import Foundation
 

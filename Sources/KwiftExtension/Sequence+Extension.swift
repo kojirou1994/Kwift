@@ -1,12 +1,3 @@
-//
-//  Sequence+Extension.swift
-//  Kwift
-//
-//  Created by Kojirou on 2019/2/6.
-//
-
-import Foundation
-
 extension Sequence where Element: Hashable {
     
     public var duplicatedElements: Set<Element> {

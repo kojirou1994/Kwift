@@ -1,13 +1,4 @@
-//
-//  String+Extension.swift
-//  Kwift
-//
-//  Created by Kojirou on 2016/11/28.
-//
-//
-
-import Foundation
-
+// MARK: Int based Subscript
 extension String {
     
     @usableFromInline
@@ -49,21 +40,26 @@ extension String {
         return self[index(startIndex, offsetBy: i)]
     }
     
+}
+
+#if canImport(Foundation)
+import Foundation
+// MARK: Utility
+extension String {
     // characterSet contains all illegal characters on OS X and Windows
     private static let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
     
     public func safeFilename(_ replacingString: String = "_") -> String {
-//        replace "-" with character of choice
         return components(separatedBy: String.illegalCharacters).joined(separator: replacingString)
     }
     
-    public var firstUppercased: String {
-        if isEmpty {
-            return ""
-        }
-        let firstC = self[startIndex].uppercased()
-        return replacingCharacters(in: ...startIndex, with: firstC)
-    }
+//    public var firstUppercased: String {
+//        if isEmpty {
+//            return ""
+//        }
+//        let firstC = self[startIndex].uppercased()
+//        return replacingCharacters(in: ...startIndex, with: firstC)
+//    }
 }
 
 extension StringProtocol {
@@ -79,3 +75,4 @@ extension StringProtocol {
     }
     
 }
+#endif

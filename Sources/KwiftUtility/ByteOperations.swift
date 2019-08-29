@@ -1,12 +1,3 @@
-//
-//  ByteOperations.swift
-//  Kwift
-//
-//  Created by Kojirou on 2019/1/28.
-//
-
-import Foundation
-
 extension FixedWidthInteger {
     
     public var binaryString: String {

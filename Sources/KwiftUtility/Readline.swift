@@ -1,13 +1,5 @@
-//
-//  Readline.swift
-//  Kwift
-//
-//  Created by Kojirou on 2017/11/4.
-//  Copyright © 2017年 Putotyra. All rights reserved.
-//
-
 import Foundation
-import Compatibility
+import KwiftExtension
 
 extension Collection where Element == UInt8 {
     

@@ -7,8 +7,7 @@ let package = Package(
     products: [
         .library(
             name: "Kwift",
-            targets: ["KwiftUtility", "Compatibility",
-                      "SwiftEnhancement", "FoundationEnhancement"]),
+            targets: ["KwiftUtility", "KwiftExtension"]),
         .library(
             name: "Executable",
             targets: ["Executable"]),
@@ -16,14 +15,8 @@ let package = Package(
             name: "KwiftUtility",
             targets: ["KwiftUtility"]),
         .library(
-            name: "SwiftEnhancement",
-            targets: ["SwiftEnhancement"]),
-        .library(
-            name: "FoundationEnhancement",
-            targets: ["FoundationEnhancement"]),
-        .library(
-            name: "Compatibility",
-            targets: ["Compatibility"])
+            name: "KwiftExtension",
+            targets: ["KwiftExtension"])
     ],
     dependencies: [],
     targets: [
@@ -31,23 +24,17 @@ let package = Package(
             name: "Executable",
             dependencies: []),
         .target(
-            name: "Compatibility",
-            dependencies: []),
-        .target(
-            name: "SwiftEnhancement",
-            dependencies: []),
-        .target(
-            name: "FoundationEnhancement",
+            name: "KwiftExtension",
             dependencies: []),
         .target(
             name: "KwiftUtility",
-            dependencies: ["Compatibility"]),
+            dependencies: ["KwiftExtension"]),
         .testTarget(
             name: "ExecutableTests",
             dependencies: ["Executable"]),
         .testTarget(
-            name: "SwiftEnhancementTests",
-            dependencies: ["SwiftEnhancement"]),
+            name: "KwiftExtensionTests",
+            dependencies: ["KwiftExtension"]),
         .testTarget(
             name: "KwiftUtilityTests",
             dependencies: ["KwiftUtility"]),

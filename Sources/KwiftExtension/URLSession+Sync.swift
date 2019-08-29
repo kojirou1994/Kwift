@@ -1,10 +1,3 @@
-//
-//  URLSession+Sync.swift
-//  Kwift
-//
-//  Created by Kojirou on 2018/10/6.
-//
-
 import Foundation
 #if canImport(FoundationNetworking)
 import FoundationNetworking

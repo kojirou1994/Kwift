@@ -13,7 +13,7 @@ public struct StdoutOutputStream: TextOutputStream {
 }
 
 public struct StdOutputStream {
-    public static var stderrOutputStream = StderrOutputStream()
+    public static var stderr = StderrOutputStream()
 
-    public static var stdoutOutputStream = StdoutOutputStream()
+    public static var stdout = StdoutOutputStream()
 }

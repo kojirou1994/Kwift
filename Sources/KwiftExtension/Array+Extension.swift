@@ -1,13 +1,3 @@
-//
-//  Array+Extension.swift
-//  Kwift
-//
-//  Created by Kojirou on 2017/2/15.
-//
-//
-
-import Foundation
-
 extension Array {
     
     public struct Conflict<V> {

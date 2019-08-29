@@ -1,12 +1,3 @@
-//
-//  Optional+Extension.swift
-//  SwiftEnhancement
-//
-//  Created by Kojirou on 2019/5/28.
-//
-
-import Foundation
-
 public struct NilError: Error, CustomStringConvertible {
     
     public let file: String

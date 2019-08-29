@@ -1,10 +1,3 @@
-//
-//  rusage.swift
-//  Kwift
-//
-//  Created by Kojirou on 2018/11/25.
-//
-
 import Foundation
 
 extension rusage: CustomStringConvertible {

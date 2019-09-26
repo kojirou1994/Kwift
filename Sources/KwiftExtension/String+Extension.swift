@@ -75,6 +75,10 @@ extension StringProtocol {
     
 }
 
+#endif
+
+#if !os(Linux)
+
 extension String.Encoding {
     
     @inlinable

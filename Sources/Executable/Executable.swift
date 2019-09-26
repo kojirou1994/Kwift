@@ -1,13 +1,6 @@
-//
-//  Executable.swift
-//  Kwift
-//
-//  Created by Kojirou on 2018/11/20.
-//
-
+#if os(macOS) || os(Linux)
 import Foundation
 
-#if os(macOS) || os(Linux)
 public enum ExecutableError: Error {
     case pathNull
     case executableNotFound(String)
@@ -22,7 +15,20 @@ public struct ExecutablePath {
         ExecutablePath.PATHs = path.split(separator: ":")
     }
     
+    private static var customLookup: ((String) -> String?)?
+    
+    public static func set(_ lookupMethod: ((String) -> String?)?) {
+        Self.customLookup = lookupMethod
+    }
+    
     internal static func lookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
+        if let customLookup = Self.customLookup {
+            if let result = customLookup(executable) {
+                return result
+            } else {
+                throw ExecutableError.executableNotFound(executable)
+            }
+        }
         let paths: [Substring]
         if let customPaths = customPaths, customPaths.count > 0 {
             paths = customPaths
@@ -48,20 +54,14 @@ public protocol Executable: CustomStringConvertible {
     
     var arguments: [String] {get}
     
-    var executableURL: URL { get }
-    
     var executableName: String { get }
     
 }
 
 extension Executable {
     
-    public var executableURL: URL {
-        return .init(fileURLWithPath: try! ExecutablePath.lookup(executableName))
-    }
-    
     public var executableName: String {
-        return Self.executableName
+        Self.executableName
     }
     
     public static func check() throws {
@@ -69,12 +69,13 @@ extension Executable {
     }
     
     public func generateProcess() throws -> Process {
-        let process = Process.init()
+        let process = Process()
+        let executableURL = URL(fileURLWithPath: try ExecutablePath.lookup(executableName))
         #if os(macOS)
         if #available(OSX 10.13, *) {
             process.executableURL = executableURL
         } else {
-            process.launchPath = executableURL.absoluteString
+            process.launchPath = executableURL.path
         }
         #else
         process.executableURL = executableURL
@@ -105,11 +106,11 @@ extension Executable {
     }
     
     public var description: String {
-        return "CommandLine: \(Self.executableName) \(arguments.joined(separator: " "))"
+        "CommandLine: \(executableName) \(arguments.joined(separator: " "))"
     }
     
     public var commandLine: [String] {
-        return [Self.executableName] + arguments
+        [executableName] + arguments
     }
     
 }
@@ -161,7 +162,7 @@ public class ParallelProcessQueue {
     }
     
     public var operationCount: Int {
-        return _queue.operationCount
+        _queue.operationCount
     }
     
     public var maxConcurrentCount: Int {
@@ -178,7 +179,7 @@ public class ParallelProcessQueue {
         _queue.addOperation(ProcessOperation.init(process: process))
     }
     
-    public func add(_ executable: Executable, termination: @escaping (Process) -> Void) throws {
+    public func add<E: Executable>(_ executable: E, termination: @escaping (Process) -> Void) throws {
         let p = try executable.generateProcess()
         p.terminationHandler = termination
         _queue.addOperation(ProcessOperation.init(process: p))

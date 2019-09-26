@@ -1,40 +1,40 @@
 #if os(macOS) || os(Linux)
 import Foundation
 
-public class SubProcessManager {
+public final class SubProcessManager {
     
-    private let queue: DispatchQueue
+    private let lock: NSLock
     private var pids: Set<pid_t>
     
     public init() {
-        queue = .init(label: "Kwift.ProcessManager")
+        lock = .init()
         pids = .init()
     }
     
     public func terminateAll() {
-        queue.sync {
-            for pid in pids {
-                kill(pid, SIGTERM)
-            }
+        lock.lock()
+        defer { lock.unlock() }
+        for pid in pids {
+            kill(pid, SIGTERM)
         }
     }
     
     /// add process to manager
     ///
     /// - Parameter process: process must be running
-    public func add(process: Process) {
+    public func add(_ process: Process) {
         guard process.isRunning else {
             return
         }
-        queue.sync {
-            _ = self.pids.insert(process.processIdentifier)
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        _ = self.pids.insert(process.processIdentifier)
     }
     
-    public func remove(process: Process) {
-        queue.sync {
-            _ = self.pids.remove(process.processIdentifier)
-        }
+    public func remove(_ process: Process) {
+        lock.lock()
+        defer { lock.unlock() }
+        _ = self.pids.remove(process.processIdentifier)
     }
     
 }

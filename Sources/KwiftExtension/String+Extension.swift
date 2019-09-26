@@ -22,22 +22,22 @@ extension String {
     
     @inlinable
     public subscript(bounds: PartialRangeFrom<Int>) -> String.SubSequence {
-        return self[index(startIndex, offsetBy: bounds.lowerBound)...]
+        self[index(startIndex, offsetBy: bounds.lowerBound)...]
     }
     
     @inlinable
     public subscript(bounds: PartialRangeUpTo<Int>) -> String.SubSequence {
-        return self[..<index(startIndex, offsetBy: bounds.upperBound)]
+        self[..<index(startIndex, offsetBy: bounds.upperBound)]
     }
     
     @inlinable
     public subscript(bounds: PartialRangeThrough<Int>) -> String.SubSequence {
-        return self[...index(startIndex, offsetBy: bounds.upperBound)]
+        self[...index(startIndex, offsetBy: bounds.upperBound)]
     }
     
     @inlinable
     public subscript(i: Int) -> Character {
-        return self[index(startIndex, offsetBy: i)]
+        self[index(startIndex, offsetBy: i)]
     }
     
 }
@@ -45,24 +45,15 @@ extension String {
 #if canImport(Foundation)
 import Foundation
 // MARK: Utility
-extension String {
-    // characterSet contains all illegal characters on OS X and Windows
-    private static let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
-    
-    public func safeFilename(_ replacingString: String = "_") -> String {
-        return components(separatedBy: String.illegalCharacters).joined(separator: replacingString)
-    }
-    
-//    public var firstUppercased: String {
-//        if isEmpty {
-//            return ""
-//        }
-//        let firstC = self[startIndex].uppercased()
-//        return replacingCharacters(in: ...startIndex, with: firstC)
-//    }
-}
+
+// characterSet contains all illegal characters on OS X and Windows
+private let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
 
 extension StringProtocol {
+    
+    public func safeFilename(_ replacingString: String = "_") -> String {
+        components(separatedBy: illegalCharacters).joined(separator: replacingString)
+    }
     
     public func ranges<T>(of aString: T, options mask: String.CompareOptions = [], locale: Locale? = nil) -> [Range<Self.Index>] where T : StringProtocol {
         var result = [Range<Self.Index>]()
@@ -73,6 +64,14 @@ extension StringProtocol {
         }
         return result
     }
+    
+    //    public var firstUppercased: String {
+    //        if isEmpty {
+    //            return ""
+    //        }
+    //        let firstC = self[startIndex].uppercased()
+    //        return replacingCharacters(in: ...startIndex, with: firstC)
+    //    }
     
 }
 

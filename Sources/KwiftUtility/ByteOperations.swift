@@ -24,20 +24,7 @@ extension FixedWidthInteger {
         return prefix + result.joined(separator: "")
     }
     
-    @available(*, unavailable)
-    public func split() -> [UInt8] {
-        var result = [UInt8]()
-        let count = Self.bitWidth / 8
-        result.reserveCapacity(count)
-        withUnsafeBytes(of: self) { (p) -> Void in
-            let new = p.bindMemory(to: UInt8.self)
-            for i in 0..<count {
-                result.append(new[i])
-            }
-        }
-        return result.reversed()
-    }
-    
+    /*
     public var splited: [UInt8] {
         let count = Self.bitWidth / 8
         var result = [UInt8].init(repeating: 0, count: count)
@@ -45,6 +32,22 @@ extension FixedWidthInteger {
             result[i-1] = UInt8.init(truncatingIfNeeded: self >> ( (count - i) * 8))
         }
         return result
+    }
+    */
+    
+    @inlinable
+    public var bytes: [UInt8] {
+        withUnsafeBytes(of: self) { (bytes) -> [UInt8] in
+//            return bytes.reversed()
+            let count = Self.bitWidth / 8
+            return [UInt8].init(unsafeUninitializedCapacity: count) { (ptr, initialized) in
+                    initialized = count
+                for i in 0...count-1 {
+                    ptr[i] = UInt8.init(truncatingIfNeeded: self >> ( (count - i - 1) * 8))
+//                        bytes[count-1-i]
+                }
+            }
+        }
     }
     
 }

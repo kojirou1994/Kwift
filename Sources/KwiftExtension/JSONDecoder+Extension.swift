@@ -1,10 +1,3 @@
-//
-//  JSONDecoder+Extension.swift
-//  Kwift
-//
-//  Created by Kojirou on 2018/10/22.
-//
-
 import Foundation
 
 extension JSONDecoder {

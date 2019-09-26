@@ -1,13 +1,6 @@
-//
-//  Shell.swift
-//  Kwift
-//
-//  Created by Kojirou on 2019/2/7.
-//
-
+#if os(macOS) || os(Linux)
 import Foundation
 
-#if os(macOS) || os(Linux)
 @dynamicMemberLookup
 public struct Shell {
     

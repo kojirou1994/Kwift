@@ -10,7 +10,7 @@ public struct NilError: Error, CustomStringConvertible {
     }
     
     public var description: String {
-        return "Nil value returned at \(file):\(line)"
+        "Nil value returned at \(file):\(line)"
     }
     
 }

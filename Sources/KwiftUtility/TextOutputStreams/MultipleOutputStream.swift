@@ -1,12 +1,12 @@
 import Foundation
 
-public struct MultipleOutputStream<S: TextOutputStream>: TextOutputStream {
+public struct MultipleOutputStream: TextOutputStream {
     
-    private var stream: S?
+    private let stream: StdioOutputStream?
     
     private let files: [FileHandle]
     
-    public init(stream: S?, files: [URL] = []) throws {
+    public init(stream: StdioOutputStream?, files: [URL]) throws {
         self.stream = stream
         self.files = try files.map({ (path) -> FileHandle in
             if !FileManager.default.fileExists(atPath: path.path) {
@@ -18,7 +18,12 @@ public struct MultipleOutputStream<S: TextOutputStream>: TextOutputStream {
         })
     }
     
-    public mutating func write(_ string: String) {
+    public init(stream: StdioOutputStream) {
+        self.stream = stream
+        self.files = []
+    }
+    
+    public func write(_ string: String) {
         stream?.write(string)
         if !files.isEmpty {
             let data = Data(string.utf8)

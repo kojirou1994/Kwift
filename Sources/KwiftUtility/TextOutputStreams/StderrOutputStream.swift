@@ -1,19 +1,21 @@
 import Foundation
 
-public struct StderrOutputStream: TextOutputStream {
+public struct StdioOutputStream: TextOutputStream {
+    
+    private let file: UnsafeMutablePointer<FILE>
+    
+    private init(_ file: UnsafeMutablePointer<FILE>) { self.file = file }
+    
     public func write(_ string: String) {
-        fputs(string, stderr)
+//        flockfile(file)
+//        defer {
+//            funlockfile(file)
+//        }
+        fputs(string, file)
     }
-}
-
-public struct StdoutOutputStream: TextOutputStream {
-    public func write(_ string: String) {
-        fputs(string, stdout)
-    }
-}
-
-public struct StdOutputStream {
-    public static var stderr = StderrOutputStream()
-
-    public static var stdout = StdoutOutputStream()
+    
+    public static let stderr = StdioOutputStream(Foundation.stderr)
+    
+    public static let stdout = StdioOutputStream(Foundation.stdout)
+    
 }

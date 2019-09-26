@@ -75,4 +75,37 @@ extension StringProtocol {
     }
     
 }
+
+extension String.Encoding {
+    
+    @inlinable
+    public init(_ cfEncoding: CFStringEncodings) {
+        self.init(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(cfEncoding.rawValue)))
+    }
+    
+}
+
 #endif
+
+extension StringProtocol {
+    
+    @inlinable
+    public var isBlank: Bool {
+        allSatisfy {$0.isWhitespace}
+    }
+    
+}
+
+extension Optional where Wrapped: StringProtocol {
+    
+    @inlinable
+    public var isBlank: Bool {
+        switch self {
+        case .none:
+            return true
+        case .some(let v):
+            return v.allSatisfy {$0.isWhitespace}
+        }
+    }
+    
+}

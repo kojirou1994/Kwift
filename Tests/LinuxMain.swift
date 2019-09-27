@@ -1,12 +1,12 @@
 import XCTest
 
 import ExecutableTests
+import KwiftExtensionTests
 import KwiftUtilityTests
-import SwiftEnhancementTests
 
 var tests = [XCTestCaseEntry]()
 tests += ExecutableTests.__allTests()
+tests += KwiftExtensionTests.__allTests()
 tests += KwiftUtilityTests.__allTests()
-tests += SwiftEnhancementTests.__allTests()
 
 XCTMain(tests)

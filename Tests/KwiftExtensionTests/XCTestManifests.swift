@@ -6,13 +6,15 @@ extension KwiftExtensionTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__KwiftExtensionTests = [
+        ("testSamePrefix", testSamePrefix),
         ("testStringSubscript", testStringSubscript),
+        ("testUnwrapOptional", testUnwrapOptional),
     ]
 }
 
 public func __allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(KwiftExtensionTests.__allTests__SwiftEnhancementTests),
+        testCase(KwiftExtensionTests.__allTests__KwiftExtensionTests),
     ]
 }
 #endif

@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@master
@@ -18,9 +18,9 @@ jobs:
           tar xzf swift-5.1-RELEASE-ubuntu18.04.tar.gz
           export PATH=$(pwd)/swift-5.1-RELEASE-ubuntu18.04/usr/bin:"${PATH}"
     - name: Debug build
-      run: swift build
+      run: swift-5.1-RELEASE-ubuntu18.04/usr/bin/swift build
     - name: Test
-      run: swift test
+      run: swift-5.1-RELEASE-ubuntu18.04/usr/bin/swift test
     - name: Release build
-      run: swift build -c release
+      run: swift-5.1-RELEASE-ubuntu18.04/usr/bin/swift build -c release
           

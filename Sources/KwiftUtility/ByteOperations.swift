@@ -37,7 +37,7 @@ extension FixedWidthInteger {
     
     @inlinable
     public var bytes: [UInt8] {
-        withUnsafeBytes(of: self) { (bytes) -> [UInt8] in
+//        withUnsafeBytes(of: self) { (bytes) -> [UInt8] in
 //            return bytes.reversed()
             let count = Self.bitWidth / 8
             return [UInt8].init(unsafeUninitializedCapacity: count) { (ptr, initialized) in
@@ -47,7 +47,7 @@ extension FixedWidthInteger {
 //                        bytes[count-1-i]
                 }
             }
-        }
+//        }
     }
     
 }

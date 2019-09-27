@@ -28,13 +28,13 @@ class ExecutableTests: XCTestCase {
     
     func testExecutableCatchPerformance() {
         measure {
-            _ = try! Curl().runAndCatch(checkNonZeroExitCode: false)
+//            _ = try! Curl().runAndCatch(checkNonZeroExitCode: false)
         }
     }
     
     func testExecutableCatchLargeOutputPerformance() {
         measure {
-            print(try! FFmpegHelp().runAndCatch(checkNonZeroExitCode: false))
+//            print(try! FFmpegHelp().runAndCatch(checkNonZeroExitCode: false))
         }
     }
     

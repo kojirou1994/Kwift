@@ -55,10 +55,43 @@ public enum ImageFormat: String, CaseIterable {
     
 }
 
+public struct Resolution<T: UnsignedInteger & LosslessStringConvertible>: Hashable, LosslessStringConvertible {
+    
+    public var width: T
+    
+    public var height: T
+    
+    public var size: UInt {
+        return UInt(width) * UInt(height)
+    }
+    
+    public init(width: T, height: T) {
+        self.width = width
+        self.height = height
+    }
+    
+    public init?(_ description: String) {
+        let splited = description.split(separator: "x")
+        guard splited.count == 2,
+            let w = T(String(splited[0])), let h = T(String(splited[1])) else {
+            return nil
+        }
+        self.init(width: w, height: h)
+    }
+    
+    public var description: String {
+        return "\(width)x\(height)"
+    }
+    
+    public var ratio: Double {
+        return Double(width) / Double(height)
+    }
+    
+}
+
 public struct ImageInfo {
     public let format: ImageFormat
-    public let height: UInt32
-    public let width: UInt32
+    public let resolution: Resolution<UInt32>
     public let depth: UInt8
     public let colors: UInt32
     
@@ -88,7 +121,7 @@ public struct ImageInfo {
                 let clen = reader.read(4).joined(UInt32.self)
                 let tag = reader.read(4)
                 #if DEBUG
-                print("\(reader.currentIndex) \(String(decoding: tag, as: UTF8.self))")
+//                print("\(reader.currentIndex) \(String(decoding: tag, as: UTF8.self))")
                 #endif
                 if clen == 13, tag.elementsEqual([0x49, 0x48, 0x44, 0x52]) {
                     // IHDR
@@ -136,8 +169,7 @@ public struct ImageInfo {
             if width == nil {
                 return nil
             }
-            self.width = width!
-            self.height = height!
+            self.resolution = .init(width: width!, height: height!)
             self.depth = depth
             self.colors = colors!
         case .jpeg:
@@ -201,8 +233,7 @@ public struct ImageInfo {
             if width == nil {
                 return nil
             }
-            self.width = width!
-            self.height = height!
+            self.resolution = .init(width: width!, height: height!)
             self.depth = depth
             self.colors = colors!
             //        case .gif: fatalError("gif not supported")

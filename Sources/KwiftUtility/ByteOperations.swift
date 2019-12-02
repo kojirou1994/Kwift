@@ -24,17 +24,6 @@ extension FixedWidthInteger {
         return prefix + result.joined(separator: "")
     }
     
-    /*
-    public var splited: [UInt8] {
-        let count = Self.bitWidth / 8
-        var result = [UInt8].init(repeating: 0, count: count)
-        for i in 1...count {
-            result[i-1] = UInt8.init(truncatingIfNeeded: self >> ( (count - i) * 8))
-        }
-        return result
-    }
-    */
-    
     @inlinable
     public var bytes: [UInt8] {
 //        withUnsafeBytes(of: self) { (bytes) -> [UInt8] in
@@ -52,7 +41,7 @@ extension FixedWidthInteger {
     
 }
 
-extension Collection where Element == UInt8 {
+extension Sequence where Element == UInt8 {
     
     public func joined<T>(_ type: T.Type) -> T where T : FixedWidthInteger {
         let byteCount = T.bitWidth / 8
@@ -67,11 +56,11 @@ extension Collection where Element == UInt8 {
     }
     
     public func joined<T>() -> T where T : FixedWidthInteger {
-        return joined(T.self)
+        joined(T.self)
     }
     
     public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {
-        return prefix + map {$0.hexString(uppercase: uppercase, prefix: "")}.joined()
+        prefix + map {$0.hexString(uppercase: uppercase, prefix: "")}.joined()
     }
     
 }

@@ -32,6 +32,25 @@ extension URLSession {
         
         return try completionHandler(resData, response, resError)
     }
+
+
+    public struct DataTaskResponse {
+        public let data: Data
+        public let response: URLResponse
+    }
+
+    @discardableResult
+    public func syncResultTask(request: URLRequest) -> Result<DataTaskResponse, URLError> {
+        self.syncDataTask(request: request) { (data, response, error) -> Result<DataTaskResponse, URLError> in
+            if let error = error as? URLError {
+                return .failure(error)
+            } else if let data = data, let response = response {
+                return .success(.init(data: data, response: response))
+            } else {
+                fatalError()
+            }
+        }
+    }
     
 }
 

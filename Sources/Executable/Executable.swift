@@ -22,17 +22,18 @@ public struct ExecutablePath {
     }
     
     internal static func lookup(_ executable: String, customPaths: [Substring]? = nil) throws -> String {
+        assert(!executable.isEmpty)
         if let customLookup = Self.customLookup {
             if let result = customLookup(executable) {
                 return result
             } else {
-                throw ExecutableError.executableNotFound(executable)
+//                throw ExecutableError.executableNotFound(executable)
             }
         }
         let paths: [Substring]
-        if let customPaths = customPaths, customPaths.count > 0 {
+        if let customPaths = customPaths, !customPaths.isEmpty {
             paths = customPaths
-        } else if ExecutablePath.PATHs.count > 0 {
+        } else if !ExecutablePath.PATHs.isEmpty {
             paths = ExecutablePath.PATHs
         } else {
             throw ExecutableError.pathNull
@@ -48,13 +49,37 @@ public struct ExecutablePath {
     }
 }
 
+public enum ExecutableStandardStream {
+    case fileHandle(FileHandle)
+    case pipe(Pipe)
+
+    var valueForProcess: Any {
+        switch self {
+        case .fileHandle(let f):
+            return f as Any
+        case .pipe(let p):
+            return p as Any
+        }
+    }
+}
+
 public protocol Executable: CustomStringConvertible {
     
     static var executableName: String {get}
     
     var arguments: [String] {get}
-    
-    var executableName: String { get }
+
+    var environment: [String : String]? {get}
+
+    var standardInput: ExecutableStandardStream? {get}
+
+    var standardOutput: ExecutableStandardStream? {get}
+
+    var standardError: ExecutableStandardStream? {get}
+
+    var currentDirectoryURL: URL? {get}
+
+    var executableName: String {get}
     
 }
 
@@ -63,8 +88,18 @@ extension Executable {
     public var executableName: String {
         Self.executableName
     }
+
+    public var environment: [String : String]? {nil}
+
+    public var standardInput: ExecutableStandardStream? {nil}
+
+    public var standardOutput: ExecutableStandardStream? {nil}
+
+    public var standardError: ExecutableStandardStream? {nil}
+
+    public var currentDirectoryURL: URL? {nil}
     
-    public static func check() throws {
+    public func checkValid() throws {
         _ = try ExecutablePath.lookup(Self.executableName)
     }
     
@@ -81,6 +116,29 @@ extension Executable {
         process.executableURL = executableURL
         #endif
         process.arguments = arguments
+        if let environment = self.environment {
+            process.environment = environment
+        }
+        if let standardInput = self.standardInput?.valueForProcess {
+            process.standardInput = standardInput
+        }
+        if let standardOutput = self.standardOutput?.valueForProcess {
+            process.standardOutput = standardOutput
+        }
+        if let standardError = self.standardError?.valueForProcess {
+            process.standardError = standardError
+        }
+        if let currentDirectoryURL = self.currentDirectoryURL {
+            #if os(macOS)
+            if #available(OSX 10.13, *) {
+                process.currentDirectoryURL = currentDirectoryURL
+            } else {
+                process.currentDirectoryPath = currentDirectoryURL.path
+            }
+            #else
+            process.currentDirectoryURL = currentDirectoryURL
+            #endif
+        }
         return process
     }
     
@@ -110,7 +168,7 @@ extension Executable {
     }
     
     public var commandLine: [String] {
-        [executableName] + arguments
+        CollectionOfOne(executableName) + arguments
     }
     
 }
@@ -127,6 +185,16 @@ public struct AnyExecutable: Executable {
     }
     
     public let executableName: String
+
+    public var environment: [String : String]?
+
+    public var standardInput: ExecutableStandardStream?
+
+    public var standardOutput: ExecutableStandardStream?
+
+    public var standardError: ExecutableStandardStream?
+
+    public var currentDirectoryURL: URL?
     
     public let arguments: [String]
     
@@ -136,7 +204,7 @@ public class ProcessOperation: Operation {
     
     internal let _process: Process
     
-    public init(process: Process) {
+    public init(_ process: Process) {
         _process = process
     }
     
@@ -153,45 +221,15 @@ public class ProcessOperation: Operation {
     }
 }
 
-public class ParallelProcessQueue {
-    
-    internal let _queue: OperationQueue
-    
-    public init() {
-        _queue = OperationQueue.init()
+public extension OperationQueue {
+    func add(_ process: Process) {
+        addOperation(ProcessOperation(process))
     }
     
-    public var operationCount: Int {
-        _queue.operationCount
+    func add<E: Executable>(_ executable: E/*, preparation: (Process) -> Void*/) {
+        let p = try! executable.generateProcess()
+//        preparation(p)
+        addOperation(ProcessOperation(p))
     }
-    
-    public var maxConcurrentCount: Int {
-        set {
-            _queue.maxConcurrentOperationCount = newValue
-        }
-        
-        get {
-            return _queue.maxConcurrentOperationCount
-        }
-    }
-    
-    public func add(_ process: Process) {
-        _queue.addOperation(ProcessOperation.init(process: process))
-    }
-    
-    public func add<E: Executable>(_ executable: E, termination: @escaping (Process) -> Void) throws {
-        let p = try executable.generateProcess()
-        p.terminationHandler = termination
-        _queue.addOperation(ProcessOperation.init(process: p))
-    }
-    
-    public func waitUntilAllOProcessesAreFinished() {
-        _queue.waitUntilAllOperationsAreFinished()
-    }
-    
-    public func terminateAllProcesses() {
-        _queue.cancelAllOperations()
-    }
-    
 }
 #endif

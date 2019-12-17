@@ -4,9 +4,10 @@ import Foundation
 extension URLSessionConfiguration {
     
     public enum ProxyType {
-        case socks5
+        case disable
         case http
         case https
+        case socks5
     }
     
     public func setProxy(proxyType: ProxyType, host: String, port: Int) {
@@ -31,6 +32,12 @@ extension URLSessionConfiguration {
                 kCFNetworkProxiesSOCKSEnable: true,
                 kCFNetworkProxiesSOCKSProxy: host,
                 kCFNetworkProxiesSOCKSPort: port
+            ], uniquingKeysWith: {$1})
+        case .disable:
+            connectionProxyDictionary?.merge([
+                kCFNetworkProxiesHTTPEnable: false,
+                kCFNetworkProxiesHTTPSEnable: false,
+                kCFNetworkProxiesSOCKSEnable: false
             ], uniquingKeysWith: {$1})
         }
     }

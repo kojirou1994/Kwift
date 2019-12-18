@@ -6,7 +6,7 @@ extension FileHandle {
         for region in data.regions {
             region.withUnsafeBytes { (bytes) in
                 if let baseAddress = bytes.baseAddress, bytes.count > 0 {
-                    let d = Data(bytesNoCopy: .init(mutating: baseAddress), count: bytes.count, deallocator: Data.Deallocator.none)
+                    let d = Data(bytesNoCopy: .init(mutating: baseAddress), count: bytes.count, deallocator: .none)
                     self.write(d)
                 }
             }

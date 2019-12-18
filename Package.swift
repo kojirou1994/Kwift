@@ -11,6 +11,9 @@ let package = Package(
         .library(
             name: "KwiftUtility",
             targets: ["KwiftUtility"]),
+        .library(
+            name: "KwiftExtension",
+            targets: ["KwiftExtension"])
     ],
     dependencies: [],
     targets: [

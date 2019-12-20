@@ -1,9 +1,11 @@
 import Foundation
 
 public protocol LosslessDataConvertible {
+
+    associatedtype EncodedData: DataProtocol
     
-    init(_ data: Data) throws
+    init<D: DataProtocol>(_ data: D) throws
     
-    var data: Data { get }
+    var data: EncodedData { get }
     
 }

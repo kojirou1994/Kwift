@@ -1,29 +1,24 @@
-//
-//  DataHandle.swift
-//  Kwift
-//
-//  Created by Kojirou on 2019/2/5.
-//
-
 import Foundation
 
-public class DataHandle {
+public typealias DataHandle = ByteReader<Data>
+
+public class ByteReader<C> where C: Collection, C.Element == UInt8, C.Index == Int {
     
-    public private(set) var currentIndex: Data.Index
+    public private(set) var currentIndex: Int
     
-    public func seek(to offset: Data.Index) {
+    public func seek(to offset: Int) {
         precondition((data.startIndex + offset)<=data.endIndex)
         currentIndex = offset
     }
     
-    public let data: Data
+    public let data: C
     
-    public init(data: Data) {
+    public init(data: C) {
         self.data = data
         currentIndex = data.startIndex
     }
     
-    public func read(_ count: Int) -> Data {
+    public func read(_ count: Int) -> C.SubSequence {
         precondition((currentIndex + count)<=data.endIndex)
         defer {
             currentIndex += count
@@ -40,7 +35,7 @@ public class DataHandle {
     }
     
     public var currentByte: UInt8 {
-        return data[currentIndex]
+        data[currentIndex]
     }
     
     public func skip(_ count: Int) {
@@ -48,9 +43,9 @@ public class DataHandle {
         currentIndex += count
     }
     
-    public func readToEnd() -> Data {
+    public func readToEnd() -> C.SubSequence {
         if isAtEnd {
-            return .init()
+            return data[data.endIndex..<data.endIndex]
         } else {
             defer { currentIndex = data.endIndex }
             return data[currentIndex..<data.endIndex]
@@ -58,11 +53,11 @@ public class DataHandle {
     }
     
     public var isAtEnd: Bool {
-        return currentIndex == (data.endIndex)
+        currentIndex == (data.endIndex)
     }
     
     public var restBytesCount: Int {
-        return data.endIndex - currentIndex
+        data.endIndex - currentIndex
     }
     
 }

@@ -100,7 +100,7 @@ public struct ImageInfo {
             return nil
         }
         self.format = format
-        let reader = DataHandle(data: data)
+        let reader = ByteReader(data: data)
         switch format {
         case .png:
             var height: UInt32?

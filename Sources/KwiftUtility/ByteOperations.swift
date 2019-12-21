@@ -26,17 +26,28 @@ extension FixedWidthInteger {
     
     @inlinable
     public var bytes: [UInt8] {
-//        withUnsafeBytes(of: self) { (bytes) -> [UInt8] in
-//            return bytes.reversed()
-            let count = Self.bitWidth / 8
-            return [UInt8].init(unsafeUninitializedCapacity: count) { (ptr, initialized) in
-                    initialized = count
-                for i in 0...count-1 {
-                    ptr[i] = UInt8.init(truncatingIfNeeded: self >> ( (count - i - 1) * 8))
-//                        bytes[count-1-i]
-                }
+        toBytes(littleEndidan: false)
+    }
+
+    @inlinable
+    public func toBytes(littleEndidan: Bool) -> [UInt8] {
+        let count = Self.bitWidth / 8
+        return [UInt8](unsafeUninitializedCapacity: count) { (ptr, initialized) in
+            initialized = count
+            for i in 0..<count {
+                let shift = littleEndidan ? i*8 : (count - i - 1)*8
+                ptr[i] = UInt8(truncatingIfNeeded: self >> shift)
             }
-//        }
+        }
+    }
+
+    @inlinable
+    public func forEachByte(littleEndidan: Bool, body: ((UInt8) throws -> Void)) rethrows {
+        let count = Self.bitWidth / 8
+        for i in 0..<count {
+            let shift = littleEndidan ? i*8 : (count - i - 1)*8
+            try body(UInt8(truncatingIfNeeded: self >> shift))
+        }
     }
     
 }

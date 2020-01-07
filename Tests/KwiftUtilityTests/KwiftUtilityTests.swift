@@ -17,6 +17,29 @@ class KwiftUtilityTests: XCTestCase {
         testInteger(Int32.self)
         testInteger(Int64.self)
     }
+
+    func testResolutionParse() {
+        let str = "1920x1080"
+        let parsed = Resolution(str)
+        XCTAssertNotNil(parsed)
+        XCTAssertEqual(parsed?.width, 1920)
+        XCTAssertEqual(parsed?.height, 1080)
+
+        measure {
+            _ = Resolution(str)
+        }
+
+        let invalidStrs = [
+            "1920",
+            "1920x",
+            "1920xabc",
+            "",
+            "x"
+        ]
+        for v in invalidStrs {
+            XCTAssertNil(Resolution(v))
+        }
+    }
     
     static var allTests : [(String, (KwiftUtilityTests) -> () throws -> Void)] {
         return [

@@ -55,43 +55,43 @@ public enum ImageFormat: String, CaseIterable {
     
 }
 
-public struct Resolution<T: UnsignedInteger & LosslessStringConvertible>: Hashable, LosslessStringConvertible {
+public struct Resolution: Hashable, CustomStringConvertible {
     
-    public var width: T
+    public var width: UInt32
     
-    public var height: T
+    public var height: UInt32
     
     public var size: UInt {
-        return UInt(width) * UInt(height)
+        UInt(width) * UInt(height)
     }
     
-    public init(width: T, height: T) {
+    public init(width: UInt32, height: UInt32) {
         self.width = width
         self.height = height
     }
-    
-    public init?(_ description: String) {
-        let splited = description.split(separator: "x")
-        guard splited.count == 2,
-            let w = T(String(splited[0])), let h = T(String(splited[1])) else {
+
+    public init?<S>(_ text: S, separator: Character = "x") where S: StringProtocol {
+        guard let xIndex = text.firstIndex(of: separator),
+            let w = UInt32(text[..<xIndex]),
+            let h = UInt32(text[text.index(after: xIndex)...]) else {
             return nil
         }
         self.init(width: w, height: h)
     }
     
     public var description: String {
-        return "\(width)x\(height)"
+        "\(width)x\(height)"
     }
     
     public var ratio: Double {
-        return Double(width) / Double(height)
+        Double(width) / Double(height)
     }
     
 }
 
 public struct ImageInfo {
     public let format: ImageFormat
-    public let resolution: Resolution<UInt32>
+    public let resolution: Resolution
     public let depth: UInt8
     public let colors: UInt32
     

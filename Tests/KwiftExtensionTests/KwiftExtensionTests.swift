@@ -52,6 +52,14 @@ class KwiftExtensionTests: XCTestCase {
         }
         
     }
+
+    func testSameSuffix() {
+        let suffix = "HJVGASDAS"
+        let sample = (0...1_000).map {"\($0)\(suffix)"}
+        measure {
+            XCTAssertEqual(suffix, sample.sameSuffix.map {String($0)})
+        }
+    }
     
     static var allTests : [(String, (KwiftExtensionTests) -> () throws -> Void)] {
         return [

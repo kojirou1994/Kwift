@@ -23,4 +23,15 @@ extension Sequence {
         }
         return count
     }
+
+    public func makeUniqueName(basename: String, startIndex: Int = 1, closure: (Element) -> String) -> String {
+        var temp = basename
+        var index = startIndex
+        while self.contains(where: { closure($0) == temp }) {
+            temp = "\(basename) \(index)"
+            index += 1
+        }
+        return temp
+    }
+
 }

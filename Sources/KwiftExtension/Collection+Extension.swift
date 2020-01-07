@@ -13,5 +13,19 @@ extension Collection where Element: Collection, Element.SubSequence: Equatable {
         }
         return nil
     }
+
+    public var sameSuffix: Element.SubSequence? {
+        guard let firstV = self.first else {
+            return nil
+        }
+        let length = firstV.count
+        for maxLength in 0..<length {
+            let p = firstV.suffix(length-maxLength)
+            if allSatisfy({$0.suffix(length-maxLength) == p}) {
+                return p
+            }
+        }
+        return nil
+    }
     
 }

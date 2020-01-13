@@ -23,11 +23,25 @@ extension Sequence {
         }
         return count
     }
+    
+    public func sorted<T>(by keyPath: KeyPath<Element, T>) -> [Element] where T: Comparable {
+        sorted(by: {$0[keyPath: keyPath] < $1[keyPath: keyPath]})
+    }
 
     public func makeUniqueName(basename: String, startIndex: Int = 1, closure: (Element) -> String) -> String {
         var temp = basename
         var index = startIndex
         while self.contains(where: { closure($0) == temp }) {
+            temp = "\(basename) \(index)"
+            index += 1
+        }
+        return temp
+    }
+
+    public func makeUniqueName(basename: String, startIndex: Int = 1, keyPath: KeyPath<Element, String>) -> String {
+        var temp = basename
+        var index = startIndex
+        while self.contains(where: { $0[keyPath: keyPath] == temp }) {
             temp = "\(basename) \(index)"
             index += 1
         }

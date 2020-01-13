@@ -1,31 +1,41 @@
 extension Collection where Element: Collection, Element.SubSequence: Equatable {
-    
-    public var samePrefix: Element.SubSequence? {
-        guard let firstV = self.first else {
+
+    public var longestCommonPrefix: Element.SubSequence? {
+        guard let firstV = self.first, !contains(where: {$0.isEmpty}) else {
             return nil
         }
-        let length = firstV.count
-        for maxLength in 0..<length {
-            let p = firstV.prefix(length-maxLength)
-            if allSatisfy({$0.prefix(length-maxLength) == p}) {
-                return p
-            }
+        var result = firstV[firstV.startIndex...]
+        var resultLength = result.count
+        var lastInvalidIndex = self.startIndex
+        while let invalidIndex = self[lastInvalidIndex...]
+            .firstIndex(where: { $0.prefix(resultLength) != result }) {
+                result = result.dropLast()
+                resultLength -= 1
+                lastInvalidIndex = invalidIndex
         }
-        return nil
+        if result.isEmpty {
+            return nil
+        }
+        return result
     }
 
-    public var sameSuffix: Element.SubSequence? {
+    public var longestCommonSuffix: Element.SubSequence? {
         guard let firstV = self.first else {
             return nil
         }
-        let length = firstV.count
-        for maxLength in 0..<length {
-            let p = firstV.suffix(length-maxLength)
-            if allSatisfy({$0.suffix(length-maxLength) == p}) {
-                return p
-            }
+        var result = firstV[firstV.startIndex...]
+        var resultLength = result.count
+        var lastInvalidIndex = self.startIndex
+        while let invalidIndex = self[lastInvalidIndex...]
+            .firstIndex(where: { $0.suffix(resultLength) != result }) {
+                result = result.dropFirst()
+                resultLength = result.count
+                lastInvalidIndex = invalidIndex
         }
-        return nil
+        if result.isEmpty {
+            return nil
+        }
+        return result
     }
     
 }

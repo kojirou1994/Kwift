@@ -22,42 +22,37 @@ class KwiftExtensionTests: XCTestCase {
         let value: Int? = 5
         XCTAssertNoThrow(try value.unwrap())
     }
-    
-    func testSamePrefix() {
-        let sample = """
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/01.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/02.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/03.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/04.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/05.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/06.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/07.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/08.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/09.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/10.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/11.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/12.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/13.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/14.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/15.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/16.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/17.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/18.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/19.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/20.heic
-/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/21.heic
-""".components(separatedBy: .newlines)
+
+    func testLongPrefix() {
+        let prefix = "FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD"
+        let samples = (1...1_000_000_0).map { "\(prefix)\($0)" }
         measure {
-            XCTAssertEqual("/Volumes/TOSHIBA_3T_9/MAKE_MANGA/Chapter Extra - Trunks the Story -A Lone Warrior/", sample.samePrefix)
+            XCTAssertEqual("FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD", samples.longestCommonPrefix)
         }
-        
     }
 
-    func testSameSuffix() {
-        let suffix = "HJVGASDAS"
-        let sample = (0...1_000).map {"\($0)\(suffix)"}
+    func testSortKeyPath() {
+        struct Wrapper {
+            let value: Int
+        }
+        let data = (1...100).reversed()
+        let wrappers = data.map(Wrapper.init(value:))
+        XCTAssertEqual(data.sorted(), wrappers.sorted(by: \.value).map{$0.value})
+    }
+
+//    func testLongPrefix2() {
+//        let prefix = "FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD"
+//        let samples = (1...1_000).map { "\(prefix)\($0)" }
+//        measure {
+//            XCTAssertEqual("FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD", samples.longestCommonPrefix2)
+//        }
+//    }
+
+    func testLongestSuffix() {
+        let result = "FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD"
+        let samples = (1...1_000_000_0).map { "\($0)\(result)" }
         measure {
-            XCTAssertEqual(suffix, sample.sameSuffix.map {String($0)})
+            XCTAssertEqual("FUTVVBHASDVUKASDHBDASILSDABJKLASDBJKASD", samples.longestCommonSuffix)
         }
     }
     

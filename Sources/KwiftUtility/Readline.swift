@@ -2,20 +2,24 @@ import Foundation
 import KwiftExtension
 
 extension Collection where Element == UInt8 {
-    
-    public func enumerateLines(_ block: Readline.ReadlineHandler) {
+
+    public func enumerateLines(separator: UInt8 = 0x0a, ignoreLastEmptyLine: Bool = false, _ block: Readline.ReadlineHandler) rethrows {
         var interrupt = false
         var offset = 0
         var start = startIndex
-        while let delimiterIndex = self[start...].firstIndex(of: Readline.delimiter) {
-            block(String.init(decoding: self[start..<delimiterIndex], as: UTF8.self), offset, &interrupt)
+        while let delimiterIndex = self[start...].firstIndex(of: separator) {
+            try block(String(decoding: self[start..<delimiterIndex], as: UTF8.self), offset, &interrupt)
             if interrupt {
                 return
             }
             start = self.index(after: delimiterIndex)
             offset += 1
         }
-        block(String.init(decoding: self[start...], as: UTF8.self), offset, &interrupt)
+        let lastLine = String(decoding: self[start...], as: UTF8.self)
+        if ignoreLastEmptyLine, lastLine.isEmpty {
+            return
+        }
+        try block(lastLine, offset, &interrupt)
     }
     
 }
@@ -24,7 +28,7 @@ public struct Readline {
 
     fileprivate static let delimiter: UInt8 = 0x0A
     
-    public typealias ReadlineHandler = (_ line: String, _ index: Int, _ interrupt: inout Bool) -> Void
+    public typealias ReadlineHandler = (_ line: String, _ index: Int, _ interrupt: inout Bool) throws -> Void
     
     public static func read(at path: URL,
                             _ handler: ReadlineHandler) throws {
@@ -62,7 +66,7 @@ public struct Readline {
                     }
                     // 有换行 转存， index更改
                     currentLineBuffer.append(contentsOf: restBufferSlice[bufferStartIndex..<newlineIndex])
-                    handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
+                    try handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
                     if interrupt {
                         return
                     }
@@ -73,7 +77,7 @@ public struct Readline {
                 }
         }
         // last line
-        handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
+        try handler(String.init(data: currentLineBuffer, encoding: .utf8)!, currentLineIndex, &interrupt)
     }
 
 }

@@ -1,3 +1,4 @@
+#if canImport(Darwin)
 import Foundation
 
 public final class XattrManager {
@@ -11,7 +12,8 @@ public final class XattrManager {
     ///   - url: The file URL
     ///   - options: noFollow and showCompression are accepted
     public func xattributesOfItem(atURL url: URL, options: XattrOptions) throws -> [String : XattrType] {
-        try url.path.withCString { path in
+        assert(options.isSubset(of: [.noFollow, .showCompression]))
+        return try url.path.withCString { path in
             var result = [String : XattrType]()
 
             try _listxattr(path, options: options.rawValue)
@@ -147,6 +149,7 @@ extension XattrManager {
          */
     }
 }
+#endif
 /*
  import Darwin
  import SwiftOverlayShims

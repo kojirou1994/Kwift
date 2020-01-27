@@ -1,6 +1,6 @@
 import Foundation
 
-public struct StdError: Error, CustomStringConvertible {
+public struct StdError: Error, CustomStringConvertible, Equatable, Hashable {
     public let rawValue: Int32
     public static var current: Self {
         .init(errno)

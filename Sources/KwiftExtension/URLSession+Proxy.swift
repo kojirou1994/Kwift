@@ -9,7 +9,7 @@ extension URLSessionConfiguration {
         case https
         case socks5
     }
-    
+
     public func setProxy(proxyType: ProxyType, host: String, port: Int) {
         if connectionProxyDictionary == nil {
             connectionProxyDictionary = .init()

@@ -3,14 +3,18 @@ public struct NilError: Error, CustomStringConvertible {
     public let file: String
     
     public let line: Int
+
+    public let message: String?
     
-    internal init(file: String, line: Int) {
+    public init(message: String? = nil, file: String, line: Int) {
         self.file = file
         self.line = line
+        self.message = message
     }
     
     public var description: String {
         "Nil value returned at \(file):\(line)"
+            + (message.map {", message: " + $0} ?? "")
     }
     
 }
@@ -18,11 +22,11 @@ public struct NilError: Error, CustomStringConvertible {
 extension Optional {
     
     @discardableResult
-    public func unwrap(file: String = #file, line: Int = #line) throws -> Wrapped {
+    @inlinable
+    public func unwrap(_ message: String? = nil, file: String = #file, line: Int = #line) throws -> Wrapped {
         guard let value = self else {
-            throw NilError.init(file: file, line: line)
+            throw NilError(message: message, file: file, line: line)
         }
-//        print(String(describing: Wrapped.self))
         return value
     }
     

@@ -96,6 +96,16 @@ extension StringProtocol {
     public var isBlank: Bool {
         allSatisfy {$0.isWhitespace}
     }
+
+    @inlinable
+    public func trim(_ predicate: (Character) -> Bool) -> SubSequence {
+        guard let start = firstIndex(where: { !predicate($0) }),
+            let end = lastIndex(where: { !predicate($0) }),
+            start <= end else {
+                return self[startIndex..<startIndex]
+        }
+        return self[start...end]
+    }
     
 }
 
@@ -107,7 +117,7 @@ extension Optional where Wrapped: StringProtocol {
         case .none:
             return true
         case .some(let v):
-            return v.allSatisfy {$0.isWhitespace}
+            return v.isBlank
         }
     }
     

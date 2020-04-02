@@ -1,15 +1,18 @@
 import Foundation
 
 extension FileHandle {
+    
+    #if canImport(Darwin) && swift(<5.2)
     @inlinable
-    public func kwiftWrite<T: DataProtocol>(contentsOf data: T) {
+    public func write<T: DataProtocol>(contentsOf data: T) throws {
         for region in data.regions {
             region.withUnsafeBytes { (bytes) in
                 if let baseAddress = bytes.baseAddress, bytes.count > 0 {
-                    let d = Data(bytesNoCopy: .init(mutating: baseAddress), count: bytes.count, deallocator: .none)
-                    self.write(d)
+                    self.write(Data(bytesNoCopy: .init(mutating: baseAddress), count: bytes.count, deallocator: .none))
                 }
             }
         }
     }
+    #endif
+
 }

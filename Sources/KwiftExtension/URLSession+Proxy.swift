@@ -1,6 +1,6 @@
-#if os(macOS)
 import Foundation
 
+#if os(macOS)
 extension URLSessionConfiguration {
 
     public func disableProxy() {

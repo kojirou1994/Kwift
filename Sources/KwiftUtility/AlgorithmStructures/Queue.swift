@@ -59,7 +59,7 @@ public struct Queue<Element>: RandomAccessCollection, MutableCollection, RangeRe
         _queue.count > 100 && garbageCount >= 50
     }
 
-    public mutating func removeSubrange<R>(_ bounds: R) where R : RangeExpression, Self.Index == R.Bound {
+    public mutating func removeSubrange<R>(_ bounds: R) where R : RangeExpression, Index == R.Bound {
         let range = fixedRange(bounds)
         if range.lowerBound == startIndex {
             removeFirst(range.count)
@@ -68,12 +68,12 @@ public struct Queue<Element>: RandomAccessCollection, MutableCollection, RangeRe
         }
     }
 
-    public mutating func replaceSubrange<C, R>(_ subrange: R, with newElements: C) where C : Collection, R : RangeExpression, Self.Element == C.Element, Self.Index == R.Bound {
+    public mutating func replaceSubrange<C, R>(_ subrange: R, with newElements: C) where C : Collection, R : RangeExpression, Element == C.Element, Index == R.Bound {
         _queue.replaceSubrange(fixedRange(subrange), with: newElements)
     }
 
     @usableFromInline
-    func fixedRange<R>(_ bounds: R) -> Range<Int> where R : RangeExpression, Self.Index == R.Bound {
+    func fixedRange<R>(_ bounds: R) -> Range<Int> where R : RangeExpression, Index == R.Bound {
         let range = bounds.relative(to: _queue)
         return (range.lowerBound+garbageCount)..<(range.upperBound+garbageCount)
     }

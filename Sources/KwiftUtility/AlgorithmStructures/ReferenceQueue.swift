@@ -72,12 +72,12 @@ public struct ReferenceQueue<Element>: RandomAccessCollection, MutableCollection
         }
     }
 
-    public mutating func replaceSubrange<C, R>(_ subrange: R, with newElements: C) where C : Collection, R : RangeExpression, Self.Element == C.Element, Self.Index == R.Bound {
+    public mutating func replaceSubrange<C, R>(_ subrange: R, with newElements: C) where C : Collection, R : RangeExpression, Element == C.Element, Index == R.Bound {
         _queue.replaceSubrange(fixedRange(subrange), with: newElements.map { $0 })
     }
 
     @usableFromInline
-    func fixedRange<R>(_ bounds: R) -> Range<Int> where R : RangeExpression, Self.Index == R.Bound {
+    func fixedRange<R>(_ bounds: R) -> Range<Int> where R : RangeExpression, Index == R.Bound {
         let range = bounds.relative(to: _queue)
         return (range.lowerBound+garbageCount)..<(range.upperBound+garbageCount)
     }

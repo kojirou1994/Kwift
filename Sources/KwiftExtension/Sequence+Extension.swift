@@ -14,6 +14,12 @@ extension Sequence where Element: Hashable {
 }
 
 extension Sequence {
+
+    #if swift(<999.0)
+    /*
+     https://github.com/apple/swift-evolution/blob/master/proposals/0220-count-where.md
+     */
+    @inlinable
     public func count(where predicate: (Element) throws -> Bool) rethrows -> Int {
         var count = 0
         for element in self {
@@ -23,7 +29,9 @@ extension Sequence {
         }
         return count
     }
-    
+    #endif
+
+    @inlinable
     public func sorted<T>(by keyPath: KeyPath<Element, T>) -> [Element] where T: Comparable {
         sorted(by: {$0[keyPath: keyPath] < $1[keyPath: keyPath]})
     }

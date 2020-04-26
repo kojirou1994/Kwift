@@ -22,7 +22,7 @@ public struct NilError: Error, CustomStringConvertible {
 extension Optional {
     
     @discardableResult
-    @inlinable
+    @inlinable @inline(__always)
     public func unwrap(_ message: String? = nil, file: String = #file, line: Int = #line) throws -> Wrapped {
         guard let value = self else {
             throw NilError(message: message, file: file, line: line)

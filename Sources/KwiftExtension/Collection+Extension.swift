@@ -37,7 +37,7 @@ extension Collection where Element: Collection, Element.SubSequence: Equatable {
         }
         return result
     }
-    
+
 }
 
 extension Collection where Element: Equatable {
@@ -53,13 +53,11 @@ extension Collection {
 
     @inlinable
     public func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
-        var result = [Index]()
-        for (offset, element) in enumerated() {
-            if try predicate(element) {
-                result.append(index(startIndex, offsetBy: offset))
-            }
+      try indices.reduce(into: [Index](), { result, currentIndex in
+        if try predicate(self[currentIndex]) {
+          result.append(currentIndex)
         }
-        return result
+      })
     }
 
 }

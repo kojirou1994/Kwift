@@ -13,6 +13,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Swift version
+      run: swift --version
+    - name: Build Debug
+      run: swift build
+    - name: Build Release
+      run: swift build -c release
+    - name: Run tests
+      run: swift test -v
+  ubuntu:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        images:
+        - swift:5.1
+        - swift:5.2
+        - swiftlang/swift:nightly-5.3-bionic
+    container:
+      image: ${{ matrix.images }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Swift version
+      run: swift --version
     - name: Build Debug
       run: swift build
     - name: Build Release

@@ -1,5 +1,5 @@
 // MARK: Int based Subscript
-extension String {
+extension StringProtocol where SubSequence == Substring {
     
     @usableFromInline
     func calculateIndex(_ lowerBound: Int, _ upperBound: Int) -> (Index, Index) {
@@ -9,29 +9,29 @@ extension String {
     }
     
     @inlinable
-    public subscript(bounds: Range<Int>) -> String.SubSequence {
+    public subscript(bounds: Range<Int>) -> Substring {
         let (lowerIndex, upperIndex) = calculateIndex(bounds.lowerBound, bounds.upperBound)
         return self[lowerIndex..<upperIndex]
     }
     
     @inlinable
-    public subscript(bounds: ClosedRange<Int>) -> String.SubSequence {
+    public subscript(bounds: ClosedRange<Int>) -> Substring {
         let (lowerIndex, upperIndex) = calculateIndex(bounds.lowerBound, bounds.upperBound)
         return self[lowerIndex...upperIndex]
     }
     
     @inlinable
-    public subscript(bounds: PartialRangeFrom<Int>) -> String.SubSequence {
+    public subscript(bounds: PartialRangeFrom<Int>) -> Substring {
         self[index(startIndex, offsetBy: bounds.lowerBound)...]
     }
     
     @inlinable
-    public subscript(bounds: PartialRangeUpTo<Int>) -> String.SubSequence {
+    public subscript(bounds: PartialRangeUpTo<Int>) -> Substring {
         self[..<index(startIndex, offsetBy: bounds.upperBound)]
     }
     
     @inlinable
-    public subscript(bounds: PartialRangeThrough<Int>) -> String.SubSequence {
+    public subscript(bounds: PartialRangeThrough<Int>) -> Substring {
         self[...index(startIndex, offsetBy: bounds.upperBound)]
     }
     
@@ -87,7 +87,7 @@ extension StringProtocol {
 
 #endif
 
-#if !os(Linux)
+#if canImport(Darwin)
 
 extension String.Encoding {
     

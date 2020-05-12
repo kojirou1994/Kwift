@@ -6,7 +6,12 @@ extension KwiftExtensionTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__KwiftExtensionTests = [
-        ("testSamePrefix", testSamePrefix),
+        ("testCheckEmptyCollection", testCheckEmptyCollection),
+        ("testLongestCommonPrefix", testLongestCommonPrefix),
+        ("testLongestCommonSuffix", testLongestCommonSuffix),
+        ("testSafeFilename", testSafeFilename),
+        ("testSortKeyPath", testSortKeyPath),
+        ("testStringCharacterPartialSubscript", testStringCharacterPartialSubscript),
         ("testStringSubscript", testStringSubscript),
         ("testUnwrapOptional", testUnwrapOptional),
     ]

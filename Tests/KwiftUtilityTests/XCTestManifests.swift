@@ -6,7 +6,9 @@ extension KwiftUtilityTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__KwiftUtilityTests = [
-        ("testByteOperation", testByteOperation),
+        ("testByteOperations", testByteOperations),
+        ("testQueue", testQueue),
+        ("testResolutionParse", testResolutionParse),
     ]
 }
 

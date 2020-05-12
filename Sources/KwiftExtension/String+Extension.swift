@@ -41,6 +41,36 @@ extension StringProtocol where SubSequence == Substring {
     }
     
 }
+
+// MARK: Character Partial Range Subscript
+extension StringProtocol where SubSequence == Substring {
+
+  @inlinable
+  public subscript(bounds: PartialRangeFrom<Character>) -> Substring? {
+    guard let tempIndex = firstIndex(of: bounds.lowerBound) else {
+      return nil
+    }
+    return self[tempIndex...]
+  }
+
+  @inlinable
+  public subscript(bounds: PartialRangeUpTo<Character>) -> Substring? {
+    guard let tempIndex = firstIndex(of: bounds.upperBound) else {
+      return nil
+    }
+    return self[..<tempIndex]
+  }
+
+  /// "ABCD"[..."B"]
+  @inlinable
+  public subscript(bounds: PartialRangeThrough<Character>) -> Substring? {
+    guard let tempIndex = firstIndex(of: bounds.upperBound) else {
+      return nil
+    }
+    return self[...tempIndex]
+  }
+
+}
 // MARK: Utility
 
 // characterSet contains all illegal characters on OS X and Windows

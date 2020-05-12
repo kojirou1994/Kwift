@@ -1,4 +1,4 @@
-name: Swift
+name: Build
 
 on:
   push:
@@ -7,15 +7,15 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  macOS:
 
-    runs-on: macos-latest
+    runs-on: macOS-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: swift build -v
+    - name: Build Debug
+      run: swift build
     - name: Build Release
-      run: swift build -v -c release
+      run: swift build -c release
     - name: Run tests
       run: swift test -v

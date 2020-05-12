@@ -41,20 +41,30 @@ extension String {
     }
     
 }
-
-#if canImport(Foundation)
-import Foundation
 // MARK: Utility
 
 // characterSet contains all illegal characters on OS X and Windows
-private let illegalCharacters = CharacterSet(charactersIn: "\"\\/?<>:*|\n\r")
+@usableFromInline let illegalFilenameCharacterSet: Set<Character> = .init("\"\\/?<>:*|\n\r")
 
 extension StringProtocol {
-    
-    public func safeFilename(_ replacingString: String = "_") -> String {
-        components(separatedBy: illegalCharacters).joined(separator: replacingString)
+
+  @inlinable
+  public func safeFilename(_ replacingString: String = "_") -> String {
+    // TODO: use reserveCapacity method
+    reduce(into: "") { result, char in
+      if illegalFilenameCharacterSet.contains(char) {
+        result.append(replacingString)
+      } else {
+        result.append(char)
+      }
     }
-    
+  }
+}
+
+#if canImport(Foundation)
+import Foundation
+
+extension StringProtocol {
     public func ranges<T>(of aString: T, options mask: String.CompareOptions = [], locale: Locale? = nil) -> [Range<Self.Index>] where T : StringProtocol {
         var result = [Range<Self.Index>]()
         var start = startIndex

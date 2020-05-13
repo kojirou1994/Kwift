@@ -1,4 +1,4 @@
-public struct CirculatingCollection<Base : RandomAccessCollection>: RandomAccessCollection {
+public struct CircularCollection<Base : RandomAccessCollection>: RandomAccessCollection {
 
     public typealias Element = Base.Element
 
@@ -84,3 +84,4 @@ public struct CirculatingCollection<Base : RandomAccessCollection>: RandomAccess
         }
     }
 }
+

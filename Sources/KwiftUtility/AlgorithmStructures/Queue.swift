@@ -55,7 +55,7 @@ public struct Queue<Element>: RandomAccessCollection, MutableCollection, RangeRe
         garbageCount = 0
     }
 
-    @inline(__always) private var needRemoveGarbage: Bool {
+    private var needRemoveGarbage: Bool {
         _queue.count > 100 && garbageCount >= 50
     }
 

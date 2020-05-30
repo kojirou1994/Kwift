@@ -1,8 +1,6 @@
 import Foundation
 
-public typealias DataHandle = ByteReader<Data>
-
-public class ByteReader<C> where C: Collection, C.Element == UInt8, C.Index == Int {
+public class ByteReader<C> where C: DataProtocol, C.Index == Int {
 
   public var currentIndex: Int
 
@@ -36,6 +34,15 @@ public class ByteReader<C> where C: Collection, C.Element == UInt8, C.Index == I
       currentIndex += 1
     }
     return data[currentIndex]
+  }
+
+  @inlinable
+  public func readInteger<T: FixedWidthInteger>(endian: Endianness = .big, as: T.Type = T.self) -> T {
+    var value: T = 0
+    withUnsafeBytes(of: &value) { ptr in
+      _ = read(MemoryLayout<T>.size).copyBytes(to: .init(mutating: ptr))
+    }
+    return endian.convert(value)
   }
 
   @inlinable

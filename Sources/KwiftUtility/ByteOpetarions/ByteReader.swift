@@ -1,8 +1,43 @@
 import Foundation
 
-public class ByteReader<C> where C: DataProtocol, C.Index == Int {
+public protocol ByteRegionReaderProtocol {
+  associatedtype ByteRegion: DataProtocol
 
-  public var currentIndex: Int
+  var readerIndex: Int {get}
+  func read(_ count: Int) -> ByteRegion
+  func skip(_ count: Int)
+}
+
+extension FileHandle: ByteRegionReaderProtocol {
+  public var readerIndex: Int {
+    numericCast(offsetInFile)
+  }
+
+  public func read(_ count: Int) -> Data {
+    if #available(OSX 10.15, *) {
+      return try! read(upToCount: count) ?? Data()
+    } else {
+      return readData(ofLength: count)
+    }
+  }
+
+  public func skip(_ count: Int) {
+    let toOffset = offsetInFile + numericCast(count)
+    if #available(OSX 10.15, *) {
+      try! seek(toOffset: toOffset)
+    } else {
+      seek(toFileOffset: toOffset)
+    }
+  }
+}
+
+public class ByteReader<C: DataProtocol>: ByteRegionReaderProtocol where C.Index == Int {
+
+  @usableFromInline
+  internal var currentIndex: Int
+
+  @inlinable
+  public var readerIndex: Int { currentIndex }
 
   @inlinable
   public func seek(to offset: Int) {

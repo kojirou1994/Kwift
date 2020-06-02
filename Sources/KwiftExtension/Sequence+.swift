@@ -1,16 +1,23 @@
+// MARK: unique elements and duplicate elements
 extension Sequence where Element: Hashable {
-    public var duplicatedElements: Set<Element> {
-        var result = Set<Element>()
-        var set = Set<Element>()
-        forEach { (e) in
-            if set.contains(e) {
-                result.insert(e)
-            } else {
-                set.insert(e)
-            }
-        }
-        return result
+
+  /// - Returns: All ununique elemnts in the sequence
+  public func duplicate() -> Set<Element> {
+    var duplicate = Set<Element>()
+    var allElements = Set<Element>()
+    forEach { element in
+      if !allElements.insert(element).inserted {
+        duplicate.insert(element)
+      }
     }
+    return duplicate
+  }
+
+  @inlinable
+  public func unique() -> [Element] {
+    var allElements = Set<Element>()
+    return filter{ allElements.insert($0).inserted }
+  }
 }
 
 extension Sequence {

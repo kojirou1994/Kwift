@@ -33,25 +33,20 @@ public enum ImageFormat: String, CaseIterable {
         }
     }
     
-    private func match(data: Data) -> Bool {
-        if data.count < headerLength {
-            return false
-        }
-        let currentHeader = data[..<(data.startIndex+headerLength)]
-        return header.elementsEqual(currentHeader)
+  private func match<D: DataProtocol>(_ data: D) -> Bool {
+    if data.count < headerLength {
+      return false
     }
+    return header.elementsEqual(data.prefix(headerLength))
+  }
     
-    public var mimeType: String {
-        return "image/\(rawValue)"
-    }
+  public var mimeType: String {
+    "image/\(rawValue)"
+  }
     
-    public init?(data: Data) {
-        if let r = ImageFormat.allCases.first(where: {$0.match(data: data)}) {
-            self = r
-        } else {
-            return nil
-        }
-    }
+  public init<D: DataProtocol>(_ data: D) throws {
+    self = try ImageFormat.allCases.first(where: {$0.match(data)}).unwrap("No matched ImageFormat.")
+  }
     
 }
 
@@ -89,18 +84,20 @@ public struct Resolution: Hashable, CustomStringConvertible {
     
 }
 
+public enum ImageInfoParseError: Error {
+  case invalidPNG
+  case invalidJPEG
+}
+
 public struct ImageInfo {
     public let format: ImageFormat
     public let resolution: Resolution
     public let depth: UInt8
     public let colors: UInt32
     
-    public init?(data: Data) {
-        guard let format = ImageFormat(data: data) else {
-            return nil
-        }
-        self.format = format
-        let reader = ByteReader(data: data)
+  public init<D: DataProtocol>(data: D) throws {
+    format = try ImageFormat(data)
+      var reader = ByteReader(data)
         switch format {
         case .png:
             var height: UInt32?
@@ -112,24 +109,24 @@ public struct ImageInfo {
                 #if DEBUG
                 print("failed to read png info")
                 #endif
-                return nil
+                throw ImageInfoParseError.invalidPNG
             }
-            reader.skip(8)
+            try reader.skip(8)
 //            width = reader.read(4).joined(UInt32.self)
 //            height = reader.read(4).joined(UInt32.self)
             while reader.restBytesCount > 12 {
-                let clen = reader.read(4).joined(UInt32.self)
-                let tag = reader.read(4)
+                let clen = try reader.readInteger() as UInt32
+                let tag = try reader.read(4)
                 #if DEBUG
 //                print("\(reader.currentIndex) \(String(decoding: tag, as: UTF8.self))")
                 #endif
                 if clen == 13, tag.elementsEqual([0x49, 0x48, 0x44, 0x52]) {
                     // IHDR
-                    width = reader.read(4).joined(UInt32.self)
-                    height = reader.read(4).joined(UInt32.self)
-                    depth = reader.readByte()
-                    let colorType = reader.readByte()
-                    reader.skip(1 + 1 + 1 + 4)
+                  width = try reader.readInteger() as UInt32
+                  height = try reader.readInteger() as UInt32
+                  depth = try reader.readByte()
+                  let colorType = try reader.readByte()
+                  try reader.skip(1 + 1 + 1 + 4)
                     if colorType == 3 {
                         /* even though the bit depth for color_type==3 can be 1,2,4,or 8,
                          * the spec in 11.2.2 of http://www.w3.org/TR/PNG/ says that the
@@ -161,13 +158,13 @@ public struct ImageInfo {
                     colors = clen / 3
                     break
                 } else if (clen + 12) > reader.restBytesCount {
-                    return nil
+                  throw ImageInfoParseError.invalidPNG
                 } else {
-                    reader.skip(Int(4+clen))
+                  try reader.skip(Int(4+clen))
                 }
             }
             if width == nil {
-                return nil
+                throw ImageInfoParseError.invalidPNG
             }
             self.resolution = .init(width: width!, height: height!)
             self.depth = depth
@@ -178,11 +175,11 @@ public struct ImageInfo {
             var width: UInt32?
             var depth: UInt8 = 0
             var colors: UInt32?
-            reader.skip(2)
+            try reader.skip(2)
             while true {
                 /* look for sync FF byte */
                 while !reader.isAtEnd {
-                    if reader.readByte() == 0xff {
+                  if try reader.readByte() == 0xff {
                         break
                     }
                 }
@@ -191,47 +188,47 @@ public struct ImageInfo {
                 }
                 /* eat any extra pad FF bytes before marker */
                 while !reader.isAtEnd {
-                    if reader.readByte() != 0xff {
+                  if try reader.readByte() != 0xff {
                         break
                     }
                 }
                 if reader.isAtEnd {
                     break
                 }
-                reader.skip(-1)
+              try reader.skip(-1)
                 if reader.currentByte == 0xda || reader.currentByte == 0xd9 {
-                    return nil
+                    throw ImageInfoParseError.invalidJPEG
                 } else if [0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].contains(reader.data[reader.currentIndex]) {
-                    reader.skip(1)
+                    try reader.skip(1)
                     if reader.restBytesCount < 2 {
-                        return nil
+                        throw ImageInfoParseError.invalidJPEG
                     } else {
-                        let clen = reader.read(2).joined(UInt32.self)
+                        let clen = try reader.read(2).joined(UInt32.self)
                         if clen < 8 || reader.restBytesCount < clen {
-                            return nil
+                          throw ImageInfoParseError.invalidJPEG
                         }
-                        depth = reader.readByte()
-                        height = reader.read(2).joined(UInt32.self)
-                        width = reader.read(2).joined(UInt32.self)
-                        depth *= reader.readByte()
+                        depth = try reader.readByte()
+                        height = try reader.read(2).joined(UInt32.self)
+                        width = try reader.read(2).joined(UInt32.self)
+                        depth *= try reader.readByte()
                         colors = 0
                         break
                     }
                 } else { // skip it
-                    reader.skip(1)
+                    try reader.skip(1)
                     if reader.restBytesCount < 2 {
-                        return nil
+                        throw ImageInfoParseError.invalidJPEG
                     } else {
-                        let clen = reader.read(2).joined(UInt32.self)
+                        let clen = try reader.read(2).joined(UInt32.self)
                         if clen < 2 || reader.restBytesCount < clen {
-                            return nil
+                            throw ImageInfoParseError.invalidJPEG
                         }
-                        reader.skip(Int(clen-2))
+                        try reader.skip(Int(clen-2))
                     }
                 }
             }
             if width == nil {
-                return nil
+                throw ImageInfoParseError.invalidJPEG
             }
             self.resolution = .init(width: width!, height: height!)
             self.depth = depth

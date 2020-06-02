@@ -21,7 +21,7 @@ public struct BitReader<T: FixedWidthInteger> {
     }
     _modify {
       yield &_offset
-      precondition((0...bitWidth).contains(_offset))
+      precondition(_offset <= bitWidth)
     }
   }
 
@@ -46,8 +46,8 @@ public struct BitReader<T: FixedWidthInteger> {
   }
 
   @inlinable
-  public mutating func readBool() -> Bool? {
-    read(1).map {$0 != 0}
+  public mutating func readBool(zeroValue: Bool = false) -> Bool? {
+    read(1).map {$0 == 0 ? zeroValue : !zeroValue}
   }
 
   @inlinable
@@ -57,7 +57,7 @@ public struct BitReader<T: FixedWidthInteger> {
 
   @inlinable
   public mutating func read(_ count: UInt8) -> T? {
-    guard availableBitCount >= count, count > 1 else {
+    guard availableBitCount >= count, count > 0 else {
       return nil
     }
     defer {

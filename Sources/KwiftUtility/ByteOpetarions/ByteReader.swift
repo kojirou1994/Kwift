@@ -1,81 +1,112 @@
 import Foundation
 
+public enum ByteRegionReaderError: Error {
+  case noEnoughBytes
+  case outRange
+}
+
 public protocol ByteRegionReaderProtocol {
   associatedtype ByteRegion: DataProtocol
 
-  var readerIndex: Int {get}
-  func read(_ count: Int) -> ByteRegion
-  func skip(_ count: Int)
+  var readerIndex: ByteRegion.Index {get}
+  mutating func read(_ count: Int) throws -> ByteRegion
+  mutating func skip(_ count: Int) throws
 }
 
 extension FileHandle: ByteRegionReaderProtocol {
   public var readerIndex: Int {
-    numericCast(offsetInFile)
-  }
-
-  public func read(_ count: Int) -> Data {
     if #available(OSX 10.15, *) {
-      return try! read(upToCount: count) ?? Data()
+      return numericCast(try! offset())
     } else {
-      return readData(ofLength: count)
+      return numericCast(offsetInFile)
     }
   }
 
-  public func skip(_ count: Int) {
-    let toOffset = offsetInFile + numericCast(count)
+  public func read(_ count: Int) throws -> Data {
+    let d: Data
     if #available(OSX 10.15, *) {
-      try! seek(toOffset: toOffset)
+      d = try read(upToCount: count) ?? Data()
     } else {
+      d = readData(ofLength: count)
+    }
+    if d.count != count {
+      throw ByteRegionReaderError.noEnoughBytes
+    }
+    return d
+  }
+
+  public func skip(_ count: Int) throws {
+    if #available(OSX 10.15, *) {
+      let oldOffset = try offset()
+      let toOffset = oldOffset + numericCast(count)
+      try seek(toOffset: toOffset)
+    } else {
+      let oldOffset = offsetInFile
+      let toOffset = oldOffset + numericCast(count)
       seek(toFileOffset: toOffset)
     }
   }
 }
 
-public class ByteReader<C: DataProtocol>: ByteRegionReaderProtocol where C.Index == Int {
+public struct ByteReader<C: DataProtocol>: ByteRegionReaderProtocol {
 
   @usableFromInline
-  internal var currentIndex: Int
+  internal var currentIndex: C.Index
 
   @inlinable
-  public var readerIndex: Int { currentIndex }
+  public var readerIndex: C.Index { currentIndex }
 
   @inlinable
-  public func seek(to offset: Int) {
-    precondition((data.startIndex + offset)<=data.endIndex)
-    currentIndex = offset
+  public mutating func seek(to offset: Int) {
+    precondition(offset >= 0)
+    let newIndex = data.index(data.startIndex, offsetBy: offset)
+    precondition(newIndex<=data.endIndex)
+    currentIndex = newIndex
   }
 
   public let data: C
 
   @inlinable
-  public init(data: C) {
+  public init(_ data: C) {
     self.data = data
     currentIndex = data.startIndex
   }
 
   @inlinable
-  public func read(_ count: Int) -> C.SubSequence {
-    precondition((currentIndex + count)<=data.endIndex)
-    defer {
-      currentIndex += count
+  public mutating func read(_ count: Int) throws -> C.SubSequence {
+    precondition(count >= 0)
+    let newIndex = data.index(currentIndex, offsetBy: count)
+    if newIndex > data.endIndex {
+      throw ByteRegionReaderError.noEnoughBytes
     }
-    return data[currentIndex..<(currentIndex + count)]
+    defer {
+      currentIndex = newIndex
+    }
+    return data[currentIndex..<newIndex]
   }
 
   @inlinable
-  public func readByte() -> UInt8 {
-    precondition((currentIndex + 1)<=data.endIndex)
+  public mutating func readString(_ count: Int) throws -> String {
+    try .init(decoding: read(count), as: UTF8.self)
+  }
+
+  @inlinable
+  public mutating func readByte() throws -> UInt8 {
+    let newIndex = data.index(currentIndex, offsetBy: 1)
+    if newIndex > data.endIndex {
+      throw ByteRegionReaderError.noEnoughBytes
+    }
     defer {
-      currentIndex += 1
+      currentIndex = newIndex
     }
     return data[currentIndex]
   }
 
   @inlinable
-  public func readInteger<T: FixedWidthInteger>(endian: Endianness = .big, as: T.Type = T.self) -> T {
+  public mutating func readInteger<T: FixedWidthInteger>(endian: Endianness = .big, as: T.Type = T.self) throws -> T {
     var value: T = 0
-    withUnsafeBytes(of: &value) { ptr in
-      _ = read(MemoryLayout<T>.size).copyBytes(to: .init(mutating: ptr))
+    try withUnsafeBytes(of: &value) { ptr in
+      _ = try read(MemoryLayout<T>.size).copyBytes(to: .init(mutating: ptr))
     }
     return endian.convert(value)
   }
@@ -86,29 +117,28 @@ public class ByteReader<C: DataProtocol>: ByteRegionReaderProtocol where C.Index
   }
 
   @inlinable
-  public func skip(_ count: Int) {
-    precondition((currentIndex + count)<=data.endIndex)
-    currentIndex += count
+  public mutating func skip(_ count: Int) throws {
+    let newIndex = data.index(currentIndex, offsetBy: count)
+    if !(data.startIndex...data.endIndex).contains(newIndex) {
+      throw ByteRegionReaderError.outRange
+    }
+    currentIndex = newIndex
   }
 
   @inlinable
-  public func readToEnd() -> C.SubSequence {
-    if isAtEnd {
-      return data[data.endIndex..<data.endIndex]
-    } else {
-      defer { currentIndex = data.endIndex }
-      return data[currentIndex..<data.endIndex]
-    }
+  public mutating func readToEnd() -> C.SubSequence {
+    defer { currentIndex = data.endIndex }
+    return data[currentIndex..<data.endIndex]
   }
 
   @inlinable
   public var isAtEnd: Bool {
-    currentIndex == (data.endIndex)
+    currentIndex == data.endIndex
   }
 
   @inlinable
   public var restBytesCount: Int {
-    data.endIndex - currentIndex
+    data.distance(from: currentIndex, to: data.endIndex)
   }
 
 }

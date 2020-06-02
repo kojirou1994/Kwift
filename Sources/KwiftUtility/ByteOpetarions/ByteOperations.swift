@@ -42,7 +42,7 @@ extension FixedWidthInteger {
   }
 
   @inlinable
-  public func forEachByte(endian: Endianness = .host, body: ((UInt8) throws -> Void)) rethrows {
+  public func forEachByte(endian: Endianness = .big, body: ((UInt8) throws -> Void)) rethrows {
     try withUnsafeBytes(of: self) { ptr in
       if endian.needConvert {
         try ptr.reversed().forEach(body)
@@ -56,7 +56,10 @@ extension FixedWidthInteger {
 
 extension Sequence where Element == UInt8 {
 
-  public func joined<T>(_ type: T.Type) -> T where T : FixedWidthInteger {
+  ///
+  /// - Parameter type: Integer Type
+  /// - Returns: big endian number
+  public func joined<T>(_ type: T.Type = T.self) -> T where T : FixedWidthInteger {
     let byteCount = T.bitWidth / 8
     var result = T.init()
     for element in enumerated() {
@@ -66,11 +69,6 @@ extension Sequence where Element == UInt8 {
       result = (result << 8) | T(truncatingIfNeeded: element.element)
     }
     return result
-  }
-
-  @inlinable
-  public func joined<T>() -> T where T : FixedWidthInteger {
-    joined(T.self)
   }
 
   @available(*, deprecated)

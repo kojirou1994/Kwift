@@ -24,10 +24,7 @@ let package = Package(
             name: "KwiftUtility",
             dependencies: ["KwiftExtension"]),
         .testTarget(
-            name: "KwiftExtensionTests",
-            dependencies: ["KwiftExtension"]),
-        .testTarget(
-            name: "KwiftUtilityTests",
-            dependencies: ["KwiftUtility"]),
+            name: "KwiftTests",
+            dependencies: ["KwiftUtility"])
     ]
 )

@@ -3,21 +3,6 @@ import XCTest
 
 class KwiftUtilityTests: XCTestCase {
 
-  func testByteOperations() {
-    func testInteger<I>(_ type: I.Type) where I: FixedWidthInteger {
-      let number = I.random(in: .min...I.max)
-      XCTAssertEqual(number, number.bytes.joined(I.self))
-    }
-    testInteger(UInt8.self)
-    testInteger(UInt16.self)
-    testInteger(UInt32.self)
-    testInteger(UInt64.self)
-    testInteger(Int8.self)
-    testInteger(Int16.self)
-    testInteger(Int32.self)
-    testInteger(Int64.self)
-  }
-
   func testResolutionParse() {
     let str = "1920x1080"
     let parsed = Resolution(str)
@@ -56,13 +41,5 @@ class KwiftUtilityTests: XCTestCase {
     queue.append(contentsOf: 10...15)
     XCTAssertTrue(queue.elementsEqual(2...15))
     XCTAssertEqual(queue.count, 14)
-  }
-
-  static var allTests : [(String, (KwiftUtilityTests) -> () throws -> Void)] {
-    return [
-      ("testByteOperations", testByteOperations),
-      ("testResolutionParse", testResolutionParse),
-      ("testQueue", testQueue)
-    ]
   }
 }

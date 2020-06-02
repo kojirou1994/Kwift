@@ -53,11 +53,15 @@ extension Collection {
 
     @inlinable
     public func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
-      try indices.reduce(into: [Index](), { result, currentIndex in
-        if try predicate(self[currentIndex]) {
-          result.append(currentIndex)
-        }
-      })
+      try indices.filter { try predicate(self[$0]) }
     }
 
+}
+
+// MARK: UTF8 String
+extension Collection where Element == UInt8 {
+  @inlinable
+  public var utf8String: String {
+    .init(decoding: self, as: UTF8.self)
+  }
 }

@@ -32,7 +32,7 @@ extension Collection {
 
   @discardableResult
   @inlinable @inline(__always)
-  public func unwrap<E: Error>(_ error: @autoclosure () -> E) throws -> Self {
+  public func notEmpty<E: Error>(_ error: @autoclosure () -> E) throws -> Self {
     if isEmpty {
       throw error()
     }

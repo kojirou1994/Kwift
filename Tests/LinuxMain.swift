@@ -1,10 +1,8 @@
 import XCTest
 
-import KwiftExtensionTests
-import KwiftUtilityTests
+import KwiftTests
 
 var tests = [XCTestCaseEntry]()
-tests += KwiftExtensionTests.__allTests()
-tests += KwiftUtilityTests.__allTests()
+tests += KwiftTests.__allTests()
 
 XCTMain(tests)

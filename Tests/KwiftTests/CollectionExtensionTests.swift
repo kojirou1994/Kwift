@@ -10,6 +10,11 @@ class CollectionExtensionTests: XCTestCase {
     XCTAssertThrowsError(try emptyCollection.notEmpty())
     XCTAssertNoThrow(try nonEmptyCollection.notEmpty())
 
+    struct CustomError: Error {}
+
+    XCTAssertThrowsError(try emptyCollection.notEmpty(CustomError()), "") { error in
+      XCTAssertTrue(error is CustomError)
+    }
   }
 
   func testFindAllIndexes() {

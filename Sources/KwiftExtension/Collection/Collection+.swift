@@ -1,42 +1,93 @@
-extension Collection where Element: Collection, Element.SubSequence: Equatable {
+extension Collection where Element: Equatable {
 
-    public var longestCommonPrefix: Element.SubSequence? {
-        guard let firstV = self.first, !contains(where: {$0.isEmpty}) else {
-            return nil
-        }
-        var result = firstV[firstV.startIndex...]
-        var resultLength = result.count
-        var lastInvalidIndex = self.startIndex
-        while let invalidIndex = self[lastInvalidIndex...]
-            .firstIndex(where: { $0.prefix(resultLength) != result }) {
-                result = result.dropLast()
-                resultLength -= 1
-                lastInvalidIndex = invalidIndex
-        }
-        if result.isEmpty {
-            return nil
-        }
-        return result
+  public func commonPrefix<T: Sequence>(with another: T) -> SubSequence where T.Element == Element {
+    if self.isEmpty {
+      return self[endIndex...]
+    }
+    var sliceEndIndex = startIndex
+
+    for anotherElement in another {
+      if sliceEndIndex == endIndex || self[sliceEndIndex] != anotherElement {
+        break
+      }
+      self.formIndex(after: &sliceEndIndex)
     }
 
-    public var longestCommonSuffix: Element.SubSequence? {
-        guard let firstV = self.first else {
-            return nil
-        }
-        var result = firstV[firstV.startIndex...]
-        var resultLength = result.count
-        var lastInvalidIndex = self.startIndex
-        while let invalidIndex = self[lastInvalidIndex...]
-            .firstIndex(where: { $0.suffix(resultLength) != result }) {
-                result = result.dropFirst()
-                resultLength = result.count
-                lastInvalidIndex = invalidIndex
-        }
-        if result.isEmpty {
-            return nil
-        }
-        return result
+    return self[..<sliceEndIndex]
+  }
+}
+
+extension BidirectionalCollection where Element: Equatable {
+
+  public func commonSuffix<T: BidirectionalCollection>(with another: T) -> SubSequence where T.Element == Element {
+    if self.isEmpty || another.isEmpty {
+      return self[endIndex...]
     }
+    var sliceStartIndex = endIndex
+    var currentIndex = index(before: endIndex)
+
+    for anotherElement in another.reversed() {
+      if self[currentIndex] == anotherElement {
+        sliceStartIndex = currentIndex
+        if currentIndex == startIndex {
+          break
+        } else {
+          formIndex(before: &currentIndex)
+        }
+      } else {
+        break
+      }
+    }
+
+    return self[sliceStartIndex...]
+  }
+}
+extension Collection where Element: Collection, Element.Element: Equatable {
+
+  /// Longest common prefix, O(m*n)
+  public var longestCommonPrefix: Element.SubSequence? {
+    guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
+      return nil
+    }
+
+    var commonPrefix = firstValue[...]
+    var currentIndex = index(after: startIndex)
+    if currentIndex == endIndex {
+      return nil
+    }
+    while currentIndex != endIndex, !commonPrefix.isEmpty {
+      commonPrefix = self[currentIndex].commonPrefix(with: commonPrefix)
+      formIndex(after: &currentIndex)
+    }
+    if commonPrefix.isEmpty {
+      return nil
+    }
+    return commonPrefix
+  }
+}
+
+extension Collection where Element: BidirectionalCollection, Element.Element: Equatable {
+
+  /// Longest common suffix, O(m*n)
+  public var longestCommonSuffix: Element.SubSequence? {
+    guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
+      return nil
+    }
+
+    var commonSuffix = firstValue[...]
+    var currentIndex = index(after: startIndex)
+    if currentIndex == endIndex {
+      return nil
+    }
+    while currentIndex != endIndex, !commonSuffix.isEmpty {
+      commonSuffix = self[currentIndex].commonSuffix(with: commonSuffix)
+      formIndex(after: &currentIndex)
+    }
+    if commonSuffix.isEmpty {
+      return nil
+    }
+    return commonSuffix
+  }
 
 }
 

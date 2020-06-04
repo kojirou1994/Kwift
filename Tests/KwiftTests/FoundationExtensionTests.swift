@@ -1,5 +1,8 @@
 import XCTest
 @testable import KwiftExtension
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 class FoundationExtensionTests: XCTestCase {
 

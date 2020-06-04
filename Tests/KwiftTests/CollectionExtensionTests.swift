@@ -2,19 +2,40 @@ import XCTest
 @testable import KwiftExtension
 
 class CollectionExtensionTests: XCTestCase {
-  
-  func testEmptyError() {
+
+  func testEquatableCollectionOfOne() {
+    XCTAssertEqual(CollectionOfOne(1), CollectionOfOne(1))
+    XCTAssertNotEqual(CollectionOfOne(1), CollectionOfOne(0))
+  }
+
+  func testCollectionEmptyError() {
     let emptyCollection = EmptyCollection<Int>()
-    let nonEmptyCollection = CollectionOfOne(0)
 
-    XCTAssertThrowsError(try emptyCollection.notEmpty())
-    XCTAssertNoThrow(try nonEmptyCollection.notEmpty())
-
+    // custom message
+    let errorMessage = "Error message"
+    XCTAssertThrowsError(try emptyCollection.notEmpty(errorMessage)) { error in
+      XCTAssertTrue(error is CollectionEmptyError)
+      XCTAssertEqual((error as! CollectionEmptyError).message, errorMessage)
+      _ = String(describing: error)
+    }
+    // no message
+    XCTAssertThrowsError(try emptyCollection.notEmpty()) { error in
+      XCTAssertTrue(error is CollectionEmptyError)
+      _ = String(describing: error)
+    }
+    // custom error
     struct CustomError: Error {}
 
-    XCTAssertThrowsError(try emptyCollection.notEmpty(CustomError()), "") { error in
+    XCTAssertThrowsError(try emptyCollection.notEmpty(CustomError())) { error in
       XCTAssertTrue(error is CustomError)
     }
+
+    let nonEmptyCollection = CollectionOfOne(0)
+
+    XCTAssertNoThrow(try nonEmptyCollection.notEmpty())
+
+    XCTAssertEqual(nonEmptyCollection, try! nonEmptyCollection.notEmpty())
+    XCTAssertEqual(nonEmptyCollection, try! nonEmptyCollection.notEmpty(CustomError()))
   }
 
   func testFindAllIndexes() {
@@ -32,6 +53,19 @@ class CollectionExtensionTests: XCTestCase {
   }
 
   let arrayPrefixAndSuffix = [UInt8](repeating: 0, count: 1_00)
+
+  func testEmptyCommonPrefixSuffix() {
+    let emptyCollection = EmptyCollection<Int>()
+    let nonEmptyCollection = CollectionOfOne(0)
+
+    // prefix
+    XCTAssertTrue(emptyCollection.commonPrefix(with: nonEmptyCollection).isEmpty)
+
+    // suffix
+    XCTAssertTrue(emptyCollection.commonSuffix(with: nonEmptyCollection).isEmpty)
+    XCTAssertTrue(emptyCollection.commonSuffix(with: emptyCollection).isEmpty)
+    XCTAssertTrue(nonEmptyCollection.commonSuffix(with: emptyCollection).isEmpty)
+  }
 
   func testTwoArrayCommonPrefix() {
     let sample = arrayPrefixAndSuffix + repeatElement(1, count: 10)
@@ -77,52 +111,74 @@ class CollectionExtensionTests: XCTestCase {
     }
   }
 
-  func testArrayLongestCommonPrefix() {
+  func testUInt8ArrayCommonPrefix() {
     let samples = (0...1_000).map { arrayPrefixAndSuffix + repeatElement(1, count: $0) }
 
-    let longestCommonPrefix = samples.longestCommonPrefix
+    let longestCommonPrefix = samples.commonPrefix
     XCTAssertNotNil(longestCommonPrefix)
     XCTAssertEqual(arrayPrefixAndSuffix, Array(longestCommonPrefix!))
 
     measure {
-      _ = samples.longestCommonPrefix
+      _ = samples.commonPrefix
     }
   }
 
-  func testArrayLongestCommonSuffix() {
+  func testEmptyCollectionCommonPrefixAndSuffix() {
+    XCTAssertNil(EmptyCollection<String>().commonPrefix)
+    XCTAssertNil(EmptyCollection<String>().commonSuffix)
+  }
+
+  func testOneElementCollectionCommonPrefixAndSuffix() {
+    XCTAssertNil(CollectionOfOne("A").commonPrefix)
+    XCTAssertNil(CollectionOfOne("A").commonSuffix)
+  }
+
+  func testEmptyCommonPrefixAndSuffixCollection() {
+    XCTAssertNil(["A", "B"].commonPrefix)
+    XCTAssertNil(["A", "B"].commonSuffix)
+  }
+
+  func testUInt8ArrayCommonSuffix() {
     let samples = (0...1_000).map { repeatElement(1, count: $0) + arrayPrefixAndSuffix }
 
-    let longestCommonSuffix = samples.longestCommonSuffix
+    let longestCommonSuffix = samples.commonSuffix
     XCTAssertNotNil(longestCommonSuffix)
     XCTAssertEqual(arrayPrefixAndSuffix, Array(longestCommonSuffix!))
 
     measure {
-      _ = samples.longestCommonSuffix
+      _ = samples.commonSuffix
     }
   }
 
   let stringPrefixSuffix = String(repeating: "A", count: 1_0)
-  func testStringLongestCommonPrefixSuffix() {
+
+  func testStringArrayCommonPrefix() {
     let samples = (1...1_000).map { "\(stringPrefixSuffix)\($0)" }
 
-    let longestCommonPrefix = samples.longestCommonPrefix
+    let longestCommonPrefix = samples.commonPrefix
     XCTAssertNotNil(longestCommonPrefix)
     XCTAssertEqual(stringPrefixSuffix, String(longestCommonPrefix!))
 
     measure {
-      _ = samples.longestCommonPrefix
+      _ = samples.commonPrefix
     }
   }
 
-  func testStringLongestCommonSuffix() {
+  func testStringArrayCommonSuffix() {
 
     let samples = (1...1_000).map { "\($0)\(stringPrefixSuffix)" }
 
-    let longestCommonSuffix = samples.longestCommonSuffix
+    let longestCommonSuffix = samples.commonSuffix
     XCTAssertNotNil(longestCommonSuffix)
     XCTAssertEqual(stringPrefixSuffix, String(longestCommonSuffix!))
     measure {
-      _ = samples.longestCommonSuffix
+      _ = samples.commonSuffix
     }
+  }
+
+  func testMiscCodes() {
+    // UTF8 String Wrapper
+    let str = "ABCD"
+    XCTAssertEqual(str.utf8.utf8String, String(decoding: str.utf8, as: UTF8.self))
   }
 }

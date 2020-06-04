@@ -8,51 +8,30 @@ class KwiftExtensionTests: XCTestCase {
       XCTAssertTrue(true)
     }
   }
-    
-  func testStringSubscript() {
-    let str = "0123456789"
-    XCTAssertEqual(str[0...5], "012345")
-    XCTAssertEqual(str[0..<5], "01234")
-    XCTAssertEqual(str[..<5], str[0..<5])
-    XCTAssertEqual(str[5...], str[5..<str.count])
-    XCTAssertEqual(str[2...7], "234567")
-    XCTAssertEqual(str[2..<7], "23456")
-    for i in 0..<str.count {
-      XCTAssertEqual(str[i], Character.init(i.description))
+
+  func testUnsafeCast() {
+
+    let uint = UInt.random(in: 0...UInt.max)
+
+    XCTAssertEqual(unsafeBitCast(uint), Int(bitPattern: uint))
+
+    class Subclass: NSObject {}
+
+    let object = Subclass()
+
+    XCTAssertTrue(unsafeDowncast(object) === (object as NSObject))
+  }
+
+  func testV3V5UUID() {
+    #if canImport(CryptoKit)
+    if #available(OSX 10.15, *) {
+      let namespace = UUID(uuidString: "f826f08b-6bd2-4625-a5a7-9140518bda08")!
+      let name = "Kwift"
+
+      XCTAssertEqual(UUID.v3(namespace: namespace, name: name), "ea74b004-4b9a-3b58-9a39-fd5237d94956")
+      XCTAssertEqual(UUID.v5(namespace: namespace, name: name), "2091aa40-04ae-502e-9546-ec5117558eb4")
     }
+    #endif
   }
-
-  func testStringCharacterPartialSubscript() {
-    let str = "ABCD"
-    XCTAssertEqual(str[..<"B"], "A")
-    XCTAssertEqual(str[..."B"], "AB")
-    XCTAssertEqual(str["B"...], "BCD")
-
-    let subStr = str.dropFirst()
-    XCTAssertEqual(subStr[..<"B"], "")
-    XCTAssertEqual(subStr[..."B"], "B")
-    XCTAssertEqual(subStr["B"...], "BCD")
-  }
-
-  func testSafeFilename() {
-    let unsafeFilename = String(repeating: "/1", count: 100)
-    XCTAssertEqual(unsafeFilename.safeFilename(), String(repeating: "_1", count: 100))
-    measure {
-      _ = unsafeFilename.safeFilename()
-    }
-  }
-
-
-
-  func testSortKeyPath() {
-    struct Wrapper {
-      let value: Int
-    }
-    let data = (1...100).reversed()
-    let wrappers = data.map(Wrapper.init(value:))
-    XCTAssertEqual(data.sorted(), wrappers.sorted(by: \.value).map{$0.value})
-  }
-
-
 
 }

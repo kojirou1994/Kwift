@@ -64,3 +64,24 @@ extension Sequence {
     }
 
 }
+
+extension Sequence where Element: Equatable {
+
+  #if swift(<999.0)
+  /*
+   https://github.com/apple/swift-evolution/blob/master/proposals/0220-count-where.md
+   */
+  @inlinable
+  public func count(of element: Element) -> Int {
+    count(where: {$0 == element})
+  }
+  #endif
+
+}
+
+extension Sequence where Element == String {
+  @inlinable
+  public func makeUniqueName(basename: String, startIndex: Int = 1) -> String {
+    makeUniqueName(basename: basename, startIndex: startIndex, keyPath: \.self)
+  }
+}

@@ -13,7 +13,7 @@ extension JSONDecoder {
   public func kwiftDecode<D, T>(from bytes: D, as: T.Type = T.self) throws -> T where D: ContiguousBytes, T: Decodable {
     try bytes.withUnsafeBytes { (ptr) -> T in
       try autoreleasepool {
-        try decode(T.self, from: Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: ptr.baseAddress!), count: ptr.count, deallocator: .none))
+        try decode(T.self, from: (bytes as? Data) ?? Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: ptr.baseAddress!), count: ptr.count, deallocator: .none))
       }
     }
   }

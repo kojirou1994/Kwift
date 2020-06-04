@@ -44,8 +44,13 @@ extension BidirectionalCollection where Element: Equatable {
 }
 extension Collection where Element: Collection, Element.Element: Equatable {
 
-  /// Longest common prefix, O(m*n)
+  @available(*, deprecated, renamed: "commonPrefix")
   public var longestCommonPrefix: Element.SubSequence? {
+    commonPrefix
+  }
+
+  /// Longest common prefix, O(m*n)
+  public var commonPrefix: Element.SubSequence? {
     guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
       return nil
     }
@@ -68,8 +73,13 @@ extension Collection where Element: Collection, Element.Element: Equatable {
 
 extension Collection where Element: BidirectionalCollection, Element.Element: Equatable {
 
-  /// Longest common suffix, O(m*n)
+  @available(*, deprecated, renamed: "commonSuffix")
   public var longestCommonSuffix: Element.SubSequence? {
+    commonSuffix
+  }
+
+  /// Longest common suffix, O(m*n)
+  public var commonSuffix: Element.SubSequence? {
     guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
       return nil
     }

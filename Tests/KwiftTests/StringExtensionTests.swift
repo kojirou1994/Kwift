@@ -46,9 +46,10 @@ class StringExtensionTests: XCTestCase {
   }
 
   func testCFStringEncodings() {
+    #if canImport(Darwin)
     XCTAssertEqual(String.Encoding(.big5).rawValue,
                   CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.big5.rawValue)))
-
+    #endif
   }
 
   func testBlankString() {

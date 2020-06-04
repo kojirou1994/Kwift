@@ -12,87 +12,105 @@ extension URLSessionConfiguration {
     connectionProxyDictionary?[kCFNetworkProxiesSOCKSEnable] = false
   }
 
-  public func setProxy(proxyType: ProxyInfo.ProxyType, host: String, port: Int) {
+  public func set(proxyInfo: ProxyInfo, for proxyType: ProxyType? = nil) {
     if connectionProxyDictionary == nil {
       connectionProxyDictionary = .init()
     }
-    switch proxyType {
+    switch proxyType ?? proxyInfo.type {
     case .http:
       connectionProxyDictionary?[kCFNetworkProxiesHTTPEnable] = true
-      connectionProxyDictionary?[kCFNetworkProxiesHTTPProxy] = host
-      connectionProxyDictionary?[kCFNetworkProxiesHTTPPort] = port
+      connectionProxyDictionary?[kCFNetworkProxiesHTTPProxy] = proxyInfo.host
+      connectionProxyDictionary?[kCFNetworkProxiesHTTPPort] = proxyInfo.port
     case .https:
       connectionProxyDictionary?[kCFNetworkProxiesHTTPSEnable] = true
-      connectionProxyDictionary?[kCFNetworkProxiesHTTPSProxy] = host
-      connectionProxyDictionary?[kCFNetworkProxiesHTTPSPort] = port
+      connectionProxyDictionary?[kCFNetworkProxiesHTTPSProxy] = proxyInfo.host
+      connectionProxyDictionary?[kCFNetworkProxiesHTTPSPort] = proxyInfo.port
     case .socks5:
       connectionProxyDictionary?[kCFNetworkProxiesSOCKSEnable] = true
-      connectionProxyDictionary?[kCFNetworkProxiesSOCKSProxy] = host
-      connectionProxyDictionary?[kCFNetworkProxiesSOCKSPort] = port
+      connectionProxyDictionary?[kCFNetworkProxiesSOCKSProxy] = proxyInfo.host
+      connectionProxyDictionary?[kCFNetworkProxiesSOCKSPort] = proxyInfo.port
     }
   }
 
-  public func setProxy(environment: [String : String] = ProcessInfo.processInfo.environment) {
-    ProxyInfo.commonProxyKeys.forEach { key in
-      guard let str = environment[key], !str.isEmpty else {
-        return
+  public func setProxy(environment: [String : String] = ProcessInfo.processInfo.environment,
+                       parseUppercaseKey: Bool = false) {
+    let values = ProxyEnvironment(environment: environment, parseUppercaseKey: parseUppercaseKey)
+    if let all = values.all {
+      switch all.type {
+      case .socks5:
+        set(proxyInfo: all)
+      default:
+        set(proxyInfo: all, for: .http)
+        set(proxyInfo: all, for: .https)
       }
-      guard let info = ProxyInfo.parse(str) else {
-        return
-      }
-      setProxy(proxyType: info.type, host: info.host, port: info.port)
+    } else {
+      values.http.map {set(proxyInfo: $0, for: $0.type == .socks5 ? .socks5 : .http)}
+      values.https.map {set(proxyInfo: $0, for: $0.type == .socks5 ? .socks5 : .https)}
     }
   }
 
 }
 #endif
 
-public struct ProxyInfo {
+enum ProxyEnvironmentKey: String {
+  case http = "http_proxy"
+  case https = "https_proxy"
+  case all = "all_proxy"
+}
 
-  public static let commonProxyKeys = ["HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "ALL_PROXY", "all_proxy"]
+public enum ProxyType: String, Equatable, CaseIterable {
+  case http
+  case https
+  case socks5
+}
+
+public struct ProxyInfo {
 
   public let type: ProxyType
   public let host: String
   public let port: Int
-  public let auth: (username: String, password: String)?
 
-  public enum ProxyType: String {
-    case http
-    case https
-    case socks5
-  }
-
-  public init(type: ProxyInfo.ProxyType, host: String, port: Int, auth: (username: String, password: String)?) {
+  public init(type: ProxyType, host: String, port: Int) {
     self.type = type
     self.host = host
     self.port = port
-    self.auth = auth
   }
 
-  public static func parse(_ str: String, defaultType: ProxyType? = .http) -> Self? {
+  public init?(_ str: String) {
     guard let url = URLComponents(string: str),
       let host = url.host,
-      let port = url.port else {
+      let port = url.port,
+      let scheme = url.scheme,
+      let type = ProxyType(rawValue: scheme.lowercased()) else {
         return nil
     }
-    let type: ProxyType
-    if let scheme = url.scheme?.lowercased() {
-      if let v = ProxyType(rawValue: scheme) {
-        type = v
-      } else {
-        return nil
+
+    self.type = type
+    self.host = host
+    self.port = port
+  }
+}
+
+public struct ProxyEnvironment {
+  public let http: ProxyInfo?
+  public let https: ProxyInfo?
+  public let all: ProxyInfo?
+
+  public init(environment: [String: String],
+              parseUppercaseKey: Bool) {
+
+    func parse(key: ProxyEnvironmentKey) -> ProxyInfo? {
+      if let value = environment[key.rawValue] {
+        return ProxyInfo(value)
+      } else if parseUppercaseKey,
+        let value = environment[key.rawValue.uppercased()] {
+        return ProxyInfo(value)
       }
-    } else if let v = defaultType {
-      type = v
-    } else {
       return nil
     }
 
-    var auth: (username: String, password: String)?
-    if let u = url.user, let p = url.password {
-      auth = (u, p)
-    }
-
-    return .init(type: type, host: host, port: port, auth: auth)
+    http = parse(key: .http)
+    https = parse(key: .https)
+    all = parse(key: .all)
   }
 }

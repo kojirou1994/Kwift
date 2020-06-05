@@ -1,29 +1,11 @@
 extension FixedWidthInteger {
 
-  @available(*, deprecated)
-  public var binaryString: String {
-    var result: [String] = []
-    let count = Self.bitWidth / 8
-    for i in 1...count {
-      let byte = UInt8(truncatingIfNeeded: self >> ((count - i) * 8))
-      let byteString = String(byte, radix: 2)
-      let padding = String(repeating: "0", count: 8 - byteString.count)
-      result.append(padding + byteString)
-    }
-    return "0b" + result.joined(separator: "_")
+  public func binaryString(prefix: String = "0b") -> String {
+    prefix + String(self, radix: 2)
   }
 
-  @available(*, deprecated)
   public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {
-    var result: [String] = []
-    let count = Self.bitWidth / 8
-    for i in 1...count {
-      let byte = UInt8(truncatingIfNeeded: self >> ((count - i) * 8))
-      let byteString = String(byte, radix: 16, uppercase: uppercase)
-      let padding = String(repeating: "0", count: 2 - byteString.count)
-      result.append(padding + byteString)
-    }
-    return prefix + result.joined(separator: "")
+    prefix + String(self, radix: 16, uppercase: uppercase)
   }
 
   @inlinable
@@ -56,24 +38,31 @@ extension FixedWidthInteger {
 
 extension Sequence where Element == UInt8 {
 
-  ///
-  /// - Parameter type: Integer Type
-  /// - Returns: big endian number
-  public func joined<T>(_ type: T.Type = T.self) -> T where T : FixedWidthInteger {
+  /// use sequence's elements to join a FixedWidthInteger
+  /// - Parameters:
+  ///   - endian: Endianness, default is big
+  ///   - type: FixedWidthInteger type
+  /// - Returns: FixedWidthInteger
+  public func joined<T>(endian: Endianness = .big, _ type: T.Type = T.self) -> T where T : FixedWidthInteger {
     let byteCount = T.bitWidth / 8
-    var result = T.init()
+    var result: T = 0
     for element in enumerated() {
       if element.offset == byteCount {
         break
       }
-      result = (result << 8) | T(truncatingIfNeeded: element.element)
+      if endian.isLittleEndian {
+        result = result | (T(truncatingIfNeeded: element.element) << (element.offset * 8))
+      } else {
+        result = (result << 8) | T(truncatingIfNeeded: element.element)
+      }
     }
     return result
   }
 
-  @available(*, deprecated)
   public func hexString(uppercase: Bool = false, prefix: String = "0x") -> String {
-    prefix + map {$0.hexString(uppercase: uppercase, prefix: "")}.joined()
+    reduce(into: prefix) { (result, byte) in
+      result.append(String(byte, radix: 16, uppercase: uppercase))
+    }
   }
 
 }

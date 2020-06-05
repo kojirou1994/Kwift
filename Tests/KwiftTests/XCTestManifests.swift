@@ -8,6 +8,7 @@ extension ByteOperationsTests {
     static let __allTests__ByteOperationsTests = [
         ("testBitReader", testBitReader),
         ("testByteAndIntegerConvertion", testByteAndIntegerConvertion),
+        ("testBytesToString", testBytesToString),
     ]
 }
 

@@ -201,7 +201,7 @@ class FoundationExtensionTests: XCTestCase {
 
   func testURLSessionSync() {
     let session = URLSession(configuration: .ephemeral)
-    let url = URL(string: "http://baidu.com")!
+    let url = URL(string: "http://bing.com")!
     XCTAssertNoThrow(try session.syncResultTask(with: url).get())
 
     let invalidUrl = URL(string: "http://127.0.0.1:20")!

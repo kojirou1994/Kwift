@@ -5,7 +5,7 @@ class StringExtensionTests: XCTestCase {
   func testSafeFilename() {
     let allInvalidCharString = String(illegalFilenameCharacterSet)
     let invalidFilename = "ABCD\(allInvalidCharString)1234"
-    XCTAssertEqual(invalidFilename.safeFilename("_"), "ABCD\(String(repeating: "_", count: illegalFilenameCharacterSet.count))1234")
+    XCTAssertTrue(invalidFilename.safeFilename().allSatisfy({!illegalFilenameCharacterSet.contains($0)}))
 
     var longRandomInvalidFilename = ""
     (1...1_000).forEach { _ in

@@ -1,12 +1,10 @@
 public struct CollectionEmptyError: Error, CustomStringConvertible {
 
-  public let file: String
-
-  public let line: Int
-
+  public let file: StaticString
+  public let line: UInt
   public let message: String?
 
-  public init(message: String? = nil, file: String, line: Int) {
+  public init(message: String? = nil, file: StaticString, line: UInt) {
     self.file = file
     self.line = line
     self.message = message
@@ -22,8 +20,8 @@ public struct CollectionEmptyError: Error, CustomStringConvertible {
 extension Collection {
 
   @discardableResult
-  @inlinable @inline(__always)
-  public func notEmpty(_ message: String? = nil, file: String = #file, line: Int = #line) throws -> Self {
+  @_transparent
+  public func notEmpty(_ message: String? = nil, file: StaticString = #file, line: UInt = #line) throws -> Self {
     if isEmpty {
       throw CollectionEmptyError(message: message, file: file, line: line)
     }
@@ -31,7 +29,7 @@ extension Collection {
   }
 
   @discardableResult
-  @inlinable @inline(__always)
+  @_transparent
   public func notEmpty<E: Error>(_ error: @autoclosure () -> E) throws -> Self {
     if isEmpty {
       throw error()

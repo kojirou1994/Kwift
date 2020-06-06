@@ -1,12 +1,10 @@
 public struct OptionalNilError: Error, CustomStringConvertible {
 
-  public let file: String
-
-  public let line: Int
-
+  public let file: StaticString
+  public let line: UInt
   public let message: String?
 
-  public init(message: String? = nil, file: String, line: Int) {
+  public init(message: String? = nil, file: StaticString, line: UInt) {
     self.file = file
     self.line = line
     self.message = message
@@ -22,8 +20,8 @@ public struct OptionalNilError: Error, CustomStringConvertible {
 extension Optional {
 
   @discardableResult
-  @inlinable @inline(__always)
-  public func unwrap(_ message: String? = nil, file: String = #file, line: Int = #line) throws -> Wrapped {
+  @_transparent
+  public func unwrap(_ message: String? = nil, file: StaticString = #file, line: UInt = #line) throws -> Wrapped {
     guard let value = self else {
       throw OptionalNilError(message: message, file: file, line: line)
     }
@@ -31,7 +29,7 @@ extension Optional {
   }
 
   @discardableResult
-  @inlinable @inline(__always)
+  @_transparent
   public func unwrap<E: Error>(_ error: @autoclosure () -> E) throws -> Wrapped {
     guard let value = self else {
       throw error()

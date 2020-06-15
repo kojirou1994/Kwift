@@ -8,4 +8,8 @@ class ExpressibleByStringLiteralTests: XCTestCase {
     XCTAssertEqual(id, "148889F2-5356-41FC-9D7A-0754E000F1BE")
   }
 
+  func testCharacterSet() {
+    let str = "ABCD=.啊🐶"
+    XCTAssertEqual(CharacterSet(charactersIn: str), "ABCD=.啊🐶")
+  }
 }

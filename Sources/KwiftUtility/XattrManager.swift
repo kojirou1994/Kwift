@@ -1,5 +1,6 @@
 #if canImport(Darwin)
 import Foundation
+import KwiftExtension
 
 public final class XattrManager {
 
@@ -45,22 +46,18 @@ public final class XattrManager {
         return try _getxattr(path: url.path, key: key, position: 0, options: options.rawValue)
     }
 
-    /// set xattr value for specific key
-    /// - Parameters:
-    ///   - value: xattr value
-    ///   - key: xattr key
-    ///   - url: The file URL
-    ///   - options: noFollow, create and replace are accepted
-    public func setXattribute(_ value: XattrType, for key: String, ofItemAtURL url: URL, options: XattrOptions) throws {
-        assert(options.isSubset(of: [.noFollow, .create, .replace]))
-        try value.withUnsafeBytes { buffer in
-            let value = setxattr(url.path, key, buffer.baseAddress, buffer.count, 0, options.rawValue)
-            if value == -1 {
-                throw StdError.current
-            }
-        }
-
+  /// set xattr value for specific key
+  /// - Parameters:
+  ///   - value: xattr value
+  ///   - key: xattr key
+  ///   - url: The file URL
+  ///   - options: noFollow, create and replace are accepted
+  public func setXattribute(_ value: XattrType, for key: String, ofItemAtURL url: URL, options: XattrOptions) throws {
+    assert(options.isSubset(of: [.noFollow, .create, .replace]))
+    try value.withUnsafeBytes { buffer in
+      try preconditionOrThrow(setxattr(url.path, key, buffer.baseAddress, buffer.count, 0, options.rawValue) != -1, StdError.current)
     }
+  }
 
     /// remove all xattr of the file
     /// - Parameters:
@@ -88,38 +85,27 @@ public final class XattrManager {
         try _removexattr(path: url.path, name: key, options: options.rawValue)
     }
 
-    private func _getxattr(path: UnsafePointer<Int8>, key: String, position: UInt32, options: Int32) throws -> XattrType {
-        try key.withCString { name in
-            let size = getxattr(path, name, nil, 0, position, options)
-            guard size != -1 else {
-                throw StdError.current
-            }
-            let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
-            guard getxattr(path, name, buffer, size, position, options) != -1 else {
-                throw StdError.current
-            }
-            return Data(bytesNoCopy: buffer, count: size, deallocator: .free)
-        }
+  private func _getxattr(path: UnsafePointer<Int8>, key: String, position: UInt32, options: Int32) throws -> XattrType {
+    try key.withCString { name in
+      let size = getxattr(path, name, nil, 0, position, options)
+      try preconditionOrThrow(size != -1, StdError.current)
+      let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
+      try preconditionOrThrow(getxattr(path, name, buffer, size, position, options) != -1, StdError.current)
+      return .init(bytesNoCopy: buffer, count: size, deallocator: .free)
     }
+  }
 
-    private func _removexattr(path: UnsafePointer<Int8>, name: UnsafePointer<Int8>, options: Int32) throws {
-        let value = removexattr(path, name, options)
-        if value == -1 {
-            throw StdError.current
-        }
-    }
+  private func _removexattr(path: UnsafePointer<Int8>, name: UnsafePointer<Int8>, options: Int32) throws {
+    try preconditionOrThrow(removexattr(path, name, options) != -1, StdError.current)
+  }
 
-    private func _listxattr(_ path: UnsafePointer<Int8>, options: Int32) throws -> XattrType {
-        let size = listxattr(path, nil, 0, options)
-        guard size != -1 else {
-            throw StdError.current
-        }
-        let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
-        guard listxattr(path, buffer, size, options) != -1 else {
-            throw StdError.current
-        }
-        return Data(bytesNoCopy: buffer, count: size, deallocator: .free)
-    }
+  private func _listxattr(_ path: UnsafePointer<Int8>, options: Int32) throws -> XattrType {
+    let size = listxattr(path, nil, 0, options)
+    try preconditionOrThrow(size != -1, StdError.current)
+    let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
+    try preconditionOrThrow(listxattr(path, buffer, size, options) != -1, StdError.current)
+    return Data(bytesNoCopy: buffer, count: size, deallocator: .free)
+  }
 
 }
 

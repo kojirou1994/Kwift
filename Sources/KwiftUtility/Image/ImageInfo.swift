@@ -36,11 +36,11 @@ public struct ImageInfo {
       //            height = reader.read(4).joined(UInt32.self)
       while reader.restBytesCount > 12 {
         let clen = try reader.readInteger() as UInt32
-        let tag = try reader.read(4)
+        let tag = try reader.readInteger() as UInt32
         #if DEBUG
         //                print("\(reader.currentIndex) \(String(decoding: tag, as: UTF8.self))")
         #endif
-        if clen == 13, tag.elementsEqual([0x49, 0x48, 0x44, 0x52]) {
+        if clen == 13, tag == 0x49484452 {
           // IHDR
           width = try reader.readInteger()
           height = try reader.readInteger()
@@ -73,7 +73,7 @@ public struct ImageInfo {
             colors = 0
             break
           }
-        } else if needPalette, tag.elementsEqual([0x50, 0x4c, 0x54, 0x45]) {
+        } else if needPalette, tag == 0x504c5445 {
           // PLTE
           colors = clen / 3
           break

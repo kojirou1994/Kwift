@@ -28,14 +28,10 @@ public struct NumberRange: LosslessStringConvertible, Hashable, Codable, Compara
         }
     }
 
-    public init(from decoder: Decoder) throws {
-        let str = try String(from: decoder)
-        if let v = Self.init(str) {
-            self = v
-        } else {
-            throw DecodingError.typeMismatch(Self.self, DecodingError.Context.init(codingPath: decoder.codingPath, debugDescription: "Not a valid range: \(str)"))
-        }
-    }
+  public init(from decoder: Decoder) throws {
+    let str = try String(from: decoder)
+    self = try Self(str).unwrap(DecodingError.typeMismatch(Self.self, .init(codingPath: decoder.codingPath, debugDescription: "Not a valid range: \(str)")))
+  }
 
     public func encode(to encoder: Encoder) throws {
         try description.encode(to: encoder)

@@ -15,7 +15,7 @@ public protocol ByteRegionReaderProtocol {
 
 extension FileHandle: ByteRegionReaderProtocol {
   public var readerIndex: Int {
-    if #available(OSX 10.15, *) {
+    if #available(OSX 10.15.4, *) {
       return numericCast(try! offset())
     } else {
       return numericCast(offsetInFile)
@@ -24,7 +24,7 @@ extension FileHandle: ByteRegionReaderProtocol {
 
   public func read(_ count: Int) throws -> Data {
     let d: Data
-    if #available(OSX 10.15, *) {
+    if #available(OSX 10.15.4, *) {
       d = try read(upToCount: count) ?? Data()
     } else {
       d = readData(ofLength: count)
@@ -36,7 +36,7 @@ extension FileHandle: ByteRegionReaderProtocol {
   }
 
   public func skip(_ count: Int) throws {
-    if #available(OSX 10.15, *) {
+    if #available(OSX 10.15.4, *) {
       let oldOffset = try offset()
       let toOffset = oldOffset + numericCast(count)
       try seek(toOffset: toOffset)

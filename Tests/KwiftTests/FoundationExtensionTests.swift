@@ -39,33 +39,6 @@ class FoundationExtensionTests: XCTestCase {
     }
   }
 
-  func testDecodeCopyBytesPerformance() {
-    let encodedData = try! jsonEncoder.encode(modelArray)
-    let bytesArray = ContiguousArray(encodedData)
-
-    measure {
-      _ = try! jsonDecoder.decode([Model].self, from: .init(bytesArray))
-    }
-  }
-
-  func testDirectDecodePerformance() {
-    let encodedData = try! jsonEncoder.encode(modelArray)
-
-    measure {
-      _ = try! jsonDecoder.decode([Model].self, from: encodedData)
-    }
-  }
-
-  func testDirectAutoreleasepoolDecodePerformance() {
-    let encodedData = try! jsonEncoder.encode(modelArray)
-
-    measure {
-      autoreleasepool {
-        _ = try! jsonDecoder.decode([Model].self, from: encodedData)
-      }
-    }
-  }
-
   func testJSONEncoder() {
     XCTAssertNoThrow(try jsonEncoder.kwiftEncode(model))
 

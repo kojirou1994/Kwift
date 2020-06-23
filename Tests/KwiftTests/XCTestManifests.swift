@@ -51,6 +51,7 @@ extension ExpressibleByStringLiteralTests {
     //   `swift test --generate-linuxmain`
     // to regenerate.
     static let __allTests__ExpressibleByStringLiteralTests = [
+        ("testCharacterSet", testCharacterSet),
         ("testUUID", testUUID),
     ]
 }
@@ -61,9 +62,6 @@ extension FoundationExtensionTests {
     // to regenerate.
     static let __allTests__FoundationExtensionTests = [
         ("testDecodeContiguousBytesPerformance", testDecodeContiguousBytesPerformance),
-        ("testDecodeCopyBytesPerformance", testDecodeCopyBytesPerformance),
-        ("testDirectAutoreleasepoolDecodePerformance", testDirectAutoreleasepoolDecodePerformance),
-        ("testDirectDecodePerformance", testDirectDecodePerformance),
         ("testJSONDecoder", testJSONDecoder),
         ("testJSONEncoder", testJSONEncoder),
         ("testURLSessionProxy", testURLSessionProxy),

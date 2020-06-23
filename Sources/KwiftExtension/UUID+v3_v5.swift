@@ -3,7 +3,7 @@ import Foundation
 import CryptoKit
 
 // MARK: - v3/v5 UUID
-@available(macOS 10.15, *)
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension UUID {
 
   public static func v5(namespace: UUID, name: String) -> Self {

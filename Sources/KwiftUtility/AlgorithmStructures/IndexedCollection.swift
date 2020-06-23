@@ -38,7 +38,7 @@ public struct IndexedCollection<Base: RandomAccessCollection>: RandomAccessColle
   }
 }
 
-@available(macOS 10.15, iOS 13, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6.0, *)
 extension IndexedCollection.Element: Identifiable where Base.Element: Identifiable {
   public var id: some Hashable { element.id }
 }

@@ -75,14 +75,12 @@ public struct ByteReader<C: DataProtocol>: ByteRegionReaderProtocol {
   @inlinable
   public mutating func read(_ count: Int) throws -> C.SubSequence {
     precondition(count >= 0)
-    let newIndex = data.index(currentIndex, offsetBy: count)
-    if newIndex > data.endIndex {
+    if count > restBytesCount {
       throw ByteRegionReaderError.noEnoughBytes
     }
-    defer {
-      currentIndex = newIndex
-    }
-    return data[currentIndex..<newIndex]
+    let oldIndex = currentIndex
+    currentIndex = data.index(currentIndex, offsetBy: count)
+    return data[oldIndex..<currentIndex]
   }
 
   @inlinable
@@ -92,14 +90,12 @@ public struct ByteReader<C: DataProtocol>: ByteRegionReaderProtocol {
 
   @inlinable
   public mutating func readByte() throws -> UInt8 {
-    let newIndex = data.index(currentIndex, offsetBy: 1)
-    if newIndex > data.endIndex {
+    if currentIndex == data.endIndex {
       throw ByteRegionReaderError.noEnoughBytes
     }
-    defer {
-      currentIndex = newIndex
-    }
-    return data[currentIndex]
+    let oldIndex = currentIndex
+    currentIndex = data.index(currentIndex, offsetBy: 1)
+    return data[oldIndex]
   }
 
   @inlinable

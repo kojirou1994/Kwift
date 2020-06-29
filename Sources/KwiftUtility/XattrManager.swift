@@ -1,6 +1,5 @@
 #if canImport(Darwin)
 import Foundation
-import KwiftExtension
 
 public final class XattrManager {
 

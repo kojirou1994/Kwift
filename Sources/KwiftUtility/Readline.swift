@@ -1,5 +1,4 @@
 import Foundation
-import KwiftExtension
 
 extension Collection where Element == UInt8 {
 

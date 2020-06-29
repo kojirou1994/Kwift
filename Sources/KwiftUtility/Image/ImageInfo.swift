@@ -15,9 +15,18 @@ public struct ImageInfo {
   public let depth: UInt8
   public let colors: UInt32
 
+  public init(fileURL: URL) throws {
+    var reader = try FileHandle(forReadingFrom: fileURL)
+    try self.init(reader: &reader)
+  }
+
   public init<D: DataProtocol>(data: D) throws {
-    format = try ImageFormat(data)
     var reader = ByteReader(data)
+    try self.init(reader: &reader)
+  }
+
+  init<T: ByteRegionReaderProtocol>(reader: inout T) throws {
+    format = try ImageFormat(reader: &reader)
     switch format {
     case .png:
       var height: UInt32?
@@ -25,16 +34,8 @@ public struct ImageInfo {
       var depth: UInt8 = 0
       var colors: UInt32?
       var needPalette = false
-      guard data.count >= 25 else {
-        #if DEBUG
-        print("failed to read png info")
-        #endif
-        throw ImageInfoParseError.invalidPNG
-      }
-      try reader.skip(8)
-      //            width = reader.read(4).joined(UInt32.self)
-      //            height = reader.read(4).joined(UInt32.self)
-      while reader.restBytesCount > 12 {
+      try preconditionOrThrow(reader.count >= 25, ImageInfoParseError.invalidPNG)
+      while reader.unreadBytesCount > 12 {
         let clen = try reader.readInteger() as UInt32
         let tag = try reader.readInteger() as UInt32
         #if DEBUG
@@ -77,7 +78,7 @@ public struct ImageInfo {
           // PLTE
           colors = clen / 3
           break
-        } else if (clen + 12) > reader.restBytesCount {
+        } else if (clen + 12) > reader.unreadBytesCount {
           throw ImageInfoParseError.invalidPNG
         } else {
           try reader.skip(Int(4+clen))
@@ -95,36 +96,29 @@ public struct ImageInfo {
       var width: UInt32?
       var depth: UInt8 = 0
       var colors: UInt32?
-      try reader.skip(2)
       while true {
         /* look for sync FF byte */
-        while !reader.isAtEnd {
-          if try reader.readByte() == 0xff {
-            break
-          }
+        while try reader.readByte() != 0xff {
         }
         if reader.isAtEnd {
           break
         }
         /* eat any extra pad FF bytes before marker */
-        while !reader.isAtEnd {
-          if try reader.readByte() != 0xff {
-            break
-          }
+        while try reader.readByte() == 0xff {
         }
         if reader.isAtEnd {
           break
         }
         try reader.skip(-1)
-        if reader.currentByte == 0xda || reader.currentByte == 0xd9 {
+        let currentByte = try reader.readByte()
+        if currentByte == 0xda || currentByte == 0xd9 {
           throw ImageInfoParseError.invalidJPEG
-        } else if [0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].contains(reader.data[reader.currentIndex]) {
-          try reader.skip(1)
-          if reader.restBytesCount < 2 {
+        } else if Self.jpegTag.contains(currentByte) {
+          if reader.unreadBytesCount < 2 {
             throw ImageInfoParseError.invalidJPEG
           } else {
             let clen = try reader.read(2).joined(UInt32.self)
-            if clen < 8 || reader.restBytesCount < clen {
+            if clen < 8 || reader.unreadBytesCount < clen {
               throw ImageInfoParseError.invalidJPEG
             }
             depth = try reader.readByte()
@@ -135,12 +129,11 @@ public struct ImageInfo {
             break
           }
         } else { // skip it
-          try reader.skip(1)
-          if reader.restBytesCount < 2 {
+          if reader.unreadBytesCount < 2 {
             throw ImageInfoParseError.invalidJPEG
           } else {
             let clen = try reader.read(2).joined(UInt32.self)
-            if clen < 2 || reader.restBytesCount < clen {
+            if clen < 2 || reader.unreadBytesCount < clen {
               throw ImageInfoParseError.invalidJPEG
             }
             try reader.skip(Int(clen-2))
@@ -153,7 +146,9 @@ public struct ImageInfo {
       self.resolution = .init(width: width!, height: height!)
       self.depth = depth
       self.colors = colors!
-      //        case .gif: fatalError("gif not supported")
+    //        case .gif: fatalError("gif not supported")
     }
   }
+
+  static let jpegTag: Set<UInt8> = [0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]
 }

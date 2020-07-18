@@ -4,13 +4,10 @@ import PackageDescription
 
 let package = Package(
   name: "Kwift",
-  platforms: [
-    .macOS(.v10_15)
-  ],
   products: [
     .library(
       name: "Kwift",
-      targets: ["KwiftUtility", "KwiftExtension"]),
+      targets: ["KwiftUtility"]),
     .library(
       name: "KwiftUtility",
       targets: ["KwiftUtility"]),

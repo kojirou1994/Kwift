@@ -1,13 +1,10 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
   name: "Kwift",
   products: [
-    .library(
-      name: "Kwift",
-      targets: ["KwiftUtility"]),
     .library(
       name: "KwiftUtility",
       targets: ["KwiftUtility"]),

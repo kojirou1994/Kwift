@@ -12,10 +12,7 @@ jobs:
     strategy:
       matrix:
         images:
-        - swift:nightly-focal
-        - swift:5.3-focal
-        - swift:5.3-centos7
-        - swift:5.3-centos8
+        - swift:5.3
     container:
       image: ${{ matrix.images }}
     steps:

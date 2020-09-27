@@ -14,14 +14,11 @@ class CollectionExtensionTests: XCTestCase {
     // custom message
     let errorMessage = "Error message"
     XCTAssertThrowsError(try emptyCollection.notEmpty(errorMessage)) { error in
-      XCTAssertTrue(error is CollectionEmptyError)
-      XCTAssertEqual((error as! CollectionEmptyError).message, errorMessage)
-      _ = String(describing: error)
+      XCTAssertTrue(error is ErrorInCode)
     }
     // no message
     XCTAssertThrowsError(try emptyCollection.notEmpty()) { error in
-      XCTAssertTrue(error is CollectionEmptyError)
-      _ = String(describing: error)
+      XCTAssertTrue(error is ErrorInCode)
     }
     // custom error
     struct CustomError: Error {}

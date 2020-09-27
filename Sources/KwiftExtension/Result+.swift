@@ -1,6 +1,6 @@
 extension Result {
-    
-    public typealias Completion = (Result<Success, Failure>) -> Void
-    
+
+  public typealias Completion = (Self) -> Void
+
 }
 

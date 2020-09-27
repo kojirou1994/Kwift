@@ -17,14 +17,10 @@ class BoolExtensionTests: XCTestCase {
     let message = "Message"
     XCTAssertNoThrow(try preconditionOrThrow(true, message))
     XCTAssertThrowsError(try preconditionOrThrow(false, message)) { error in
-      XCTAssertTrue(error is PreconditionFailError)
-      let error = error as! PreconditionFailError
-      XCTAssertTrue(error.description.hasSuffix(message))
+      XCTAssertTrue(error is ErrorInCode)
     }
     XCTAssertThrowsError(try preconditionOrThrow(false)) { error in
-      XCTAssertTrue(error is PreconditionFailError)
-      let error = error as! PreconditionFailError
-      XCTAssertFalse(error.description.hasSuffix(message))
+      XCTAssertTrue(error is ErrorInCode)
     }
   }
 }

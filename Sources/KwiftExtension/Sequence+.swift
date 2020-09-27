@@ -13,6 +13,8 @@ extension Sequence where Element: Hashable {
     return duplicate
   }
 
+  /// Get all unique elements in original oreder.
+  /// - Returns: Array of the unique elements
   @inlinable
   public func unique() -> [Element] {
     var allElements = Set<Element>()

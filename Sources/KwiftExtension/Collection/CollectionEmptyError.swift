@@ -3,8 +3,8 @@ extension Collection {
   @discardableResult
   @_transparent
   public func notEmpty(_ message: @autoclosure () -> String = String(),
-                       location: CodeLocation = .init()) throws -> Self {
-    try notEmpty(ErrorInCode(header: "Collection is empty", message: message(), location: location))
+                       fileID: StaticString = #fileID, line: UInt = #line, column: UInt = #column) throws -> Self {
+    try notEmpty(ErrorInCode(header: "Collection is empty", message: message(), location: CodeLocation(fileID: fileID, line: line, column: column)))
   }
 
   @discardableResult

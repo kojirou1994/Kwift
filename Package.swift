@@ -10,13 +10,19 @@ let package = Package(
       targets: ["KwiftUtility"]),
     .library(
       name: "KwiftExtension",
-      targets: ["KwiftExtension"])
+      targets: ["KwiftExtension"]),
+    .library(
+      name: "Precondition",
+      targets: ["Precondition"])
   ],
   dependencies: [],
   targets: [
     .target(
-      name: "KwiftExtension",
+      name: "Precondition",
       dependencies: []),
+    .target(
+      name: "KwiftExtension",
+      dependencies: ["Precondition"]),
     .target(
       name: "KwiftUtility",
       dependencies: ["KwiftExtension"]),

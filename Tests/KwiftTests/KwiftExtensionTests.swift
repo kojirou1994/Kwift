@@ -24,7 +24,7 @@ class KwiftExtensionTests: XCTestCase {
 
   func testV3V5UUID() {
     #if canImport(CryptoKit)
-    if #available(OSX 10.15, *) {
+    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
       let namespace = UUID(uuidString: "f826f08b-6bd2-4625-a5a7-9140518bda08")!
       let name = "Kwift"
 

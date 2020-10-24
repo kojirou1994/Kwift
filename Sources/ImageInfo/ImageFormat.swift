@@ -1,4 +1,5 @@
 import Foundation
+import ByteOpetarions
 
 public enum ImageFormat: String, CaseIterable {
 
@@ -18,8 +19,7 @@ public enum ImageFormat: String, CaseIterable {
       }).unwrap("No matched ImageFormat.")
   }
 
-  @inlinable
-  internal var headerLength: Int {
+  var headerLength: Int {
     switch self {
 //    case .gif: return 6
     case .jpeg: return 2

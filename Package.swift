@@ -13,7 +13,16 @@ let package = Package(
       targets: ["KwiftExtension"]),
     .library(
       name: "Precondition",
-      targets: ["Precondition"])
+      targets: ["Precondition"]),
+    .library(
+      name: "KwiftC",
+      targets: ["KwiftC"]),
+    .library(
+      name: "ByteOpetarions",
+      targets: ["ByteOpetarions"]),
+    .library(
+      name: "ImageInfo",
+      targets: ["ImageInfo"])
   ],
   dependencies: [],
   targets: [
@@ -21,11 +30,32 @@ let package = Package(
       name: "Precondition",
       dependencies: []),
     .target(
+      name: "KwiftC",
+      dependencies: []),
+    .target(
+      name: "ProxyInfo",
+      dependencies: []),
+    .target(
       name: "KwiftExtension",
-      dependencies: ["Precondition"]),
+      dependencies: [
+        "Precondition",
+        "KwiftC",
+        "ProxyInfo"
+      ]),
+    .target(
+      name: "ByteOpetarions",
+      dependencies: ["Precondition", "KwiftC"]),
+    .target(
+      name: "ImageInfo",
+      dependencies: ["ByteOpetarions", "KwiftExtension"]),
     .target(
       name: "KwiftUtility",
-      dependencies: ["KwiftExtension"]),
+      dependencies: [
+        "KwiftExtension",
+        "ByteOpetarions",
+        "ImageInfo",
+        "ProxyInfo"
+      ]),
     .testTarget(
       name: "KwiftTests",
       dependencies: ["KwiftUtility"])

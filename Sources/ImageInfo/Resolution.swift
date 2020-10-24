@@ -1,3 +1,5 @@
+import KwiftExtension
+
 public struct Resolution: Hashable, Equatable, CustomStringConvertible {
 
   public var width: UInt32

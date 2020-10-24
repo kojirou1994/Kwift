@@ -1,5 +1,6 @@
 import XCTest
 @testable import KwiftExtension
+@testable import ProxyInfo
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif

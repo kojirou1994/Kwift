@@ -1,4 +1,7 @@
 import Foundation
+import ByteOpetarions
+import Precondition
+
 /*
  Note:
  https://github.com/xiph/flac/blob/452a44777892086892feb8ed7f1156e9b897b5c3/src/share/grabbag/picture.c

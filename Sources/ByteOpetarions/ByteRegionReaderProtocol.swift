@@ -1,4 +1,5 @@
 import Foundation
+import Precondition
 
 public enum ByteRegionReaderError: Error {
   case noEnoughBytes
@@ -38,7 +39,7 @@ public extension ByteRegionReaderProtocol {
   /// - Returns: String
   @inlinable
   mutating func readString(_ count: Int) throws -> String {
-    try read(count).utf8String
+    String(decoding: try read(count), as: UTF8.self)
   }
 
   @inlinable

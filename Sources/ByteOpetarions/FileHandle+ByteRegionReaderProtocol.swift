@@ -1,4 +1,6 @@
 import Foundation
+import KwiftC
+import Precondition
 
 extension FileHandle: ByteRegionReaderProtocol {
 

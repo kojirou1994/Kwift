@@ -1,5 +1,8 @@
 import Foundation
-
+/*
+ Reference:
+ https://github.com/curl/curl/blob/9c845be2797e2047547ec247cb037471aeb48bb0/lib/url.c#L2206
+ */
 #if os(macOS)
 extension URLSessionConfiguration {
 

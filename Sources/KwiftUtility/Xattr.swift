@@ -15,9 +15,11 @@ public enum Xattr {
       var result = [String : XattrType]()
 
       try _listxattr(path, options: options.rawValue)
-        .enumerateLines(separator: 0, ignoreLastEmptyLine: true, { (key, _, _) in
+        .lazySplit(separator: 0)
+        .forEach { keyBuff in
+          let key = keyBuff.utf8String
           result[key] = try _getxattr(path: path, key: key, position: 0, options: options.rawValue)
-        })
+        }
       return result
     }
   }
@@ -29,8 +31,8 @@ public enum Xattr {
   public static func xattributeKeysOfItem(atURL url: URL, options: XattrOptions) throws -> [String] {
     assert(options.isSubset(of: [.noFollow, .showCompression]))
     return try _listxattr(url.path, options: options.rawValue)
-      .split(separator: 0)
-      .map { String(decoding: $0, as: UTF8.self) }
+      .lazySplit(separator: 0)
+      .map { $0.utf8String }
   }
 
   ///
@@ -64,9 +66,9 @@ public enum Xattr {
     assert(options.isSubset(of: [.noFollow, .showCompression]))
     try url.path.withCString { path in
       try _listxattr(path, options: options.rawValue)
-        .split(separator: 0)
-        .forEach { (keyData) in
-          let key = String(decoding: keyData, as: UTF8.self)
+        .lazySplit(separator: 0)
+        .forEach { keyData in
+          let key = keyData.utf8String
           try _removexattr(path: path, name: key, options: options.rawValue)
         }
     }
@@ -86,9 +88,14 @@ public enum Xattr {
     try key.withCString { name in
       let size = getxattr(path, name, nil, 0, position, options)
       try preconditionOrThrow(size != -1, StdError.current)
-      let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
-      try preconditionOrThrow(getxattr(path, name, buffer, size, position, options) != -1, StdError.current)
-      return .init(bytesNoCopy: buffer, count: size, deallocator: .free)
+      guard size > 0 else {
+        return XattrType()
+      }
+      var buffer = XattrType(count: size)
+      try buffer.withUnsafeMutableBytes { buf in
+        try preconditionOrThrow(getxattr(path, name, buf.baseAddress!, size, position, options) != -1, StdError.current)
+      }
+      return buffer
     }
   }
 
@@ -99,9 +106,14 @@ public enum Xattr {
   private static func _listxattr(_ path: UnsafePointer<Int8>, options: Int32) throws -> XattrType {
     let size = listxattr(path, nil, 0, options)
     try preconditionOrThrow(size != -1, StdError.current)
-    let buffer = UnsafeMutablePointer<Int8>.allocate(capacity: size)
-    try preconditionOrThrow(listxattr(path, buffer, size, options) != -1, StdError.current)
-    return Data(bytesNoCopy: buffer, count: size, deallocator: .free)
+    guard size > 0 else {
+      return XattrType()
+    }
+    var buffer = XattrType(count: size)
+    try buffer.withUnsafeMutableBytes { (buf: UnsafeMutableRawBufferPointer) in
+      try preconditionOrThrow(listxattr(path, buf.bindMemory(to: Int8.self).baseAddress!, size, options) != -1, StdError.current)
+    }
+    return buffer
   }
 
 }

@@ -34,21 +34,28 @@ extension TwoCase: Equatable where First: Equatable, Second: Equatable {}
 
 extension TwoCase: Encodable where First: Encodable, Second: Encodable {
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
     switch self {
-    case .first(let v): try container.encode(v)
-    case .second(let v): try container.encode(v)
+    case .first(let v): try v.encode(to: encoder)
+    case .second(let v): try v.encode(to: encoder)
     }
   }
 }
 
 extension TwoCase: Decodable where First: Decodable, Second: Decodable {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
     do {
-      self = .first(try container.decode(First.self))
+      self = .first(try .init(from: decoder))
     } catch {
-      self = .second(try container.decode(Second.self))
+      self = .second(try .init(from: decoder))
+    }
+  }
+}
+
+extension TwoCase: CustomStringConvertible where First: CustomStringConvertible, Second: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case .first(let v): return v.description
+    case .second(let v): return v.description
     }
   }
 }

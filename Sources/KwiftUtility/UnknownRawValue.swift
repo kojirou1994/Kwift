@@ -32,3 +32,27 @@ public enum UnknownRawValue<T: RawRepresentable>: RawRepresentable, CustomString
   }
 
 }
+
+extension UnknownRawValue: Encodable where RawValue: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    try rawValue.encode(to: encoder)
+  }
+}
+
+extension UnknownRawValue: Decodable where RawValue: Decodable {
+  public init(from decoder: Decoder) throws {
+    self.init(rawValue: try .init(from: decoder))
+  }
+}
+
+extension UnknownRawValue: Equatable where T.RawValue: Equatable {
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    lhs.rawValue == rhs.rawValue
+  }
+}
+
+extension UnknownRawValue: Hashable where RawValue: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(rawValue)
+  }
+}

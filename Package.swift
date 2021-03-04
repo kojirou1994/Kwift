@@ -56,7 +56,7 @@ let package = Package(
         "KwiftExtension",
         "ByteOpetarions",
         "ImageInfo",
-        "ProxyInfo"
+        "PropertyWrappers",
       ]),
     .testTarget(
       name: "KwiftTests",

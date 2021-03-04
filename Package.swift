@@ -22,13 +22,15 @@ let package = Package(
       targets: ["ByteOpetarions"]),
     .library(
       name: "ImageInfo",
-      targets: ["ImageInfo"])
+      targets: ["ImageInfo"]),
+    .library(
+      name: "PropertyWrappers",
+      targets: ["PropertyWrappers"]),
   ],
   dependencies: [],
   targets: [
-    .target(
-      name: "Precondition",
-      dependencies: []),
+    .target(name: "Precondition"),
+    .target(name: "PropertyWrappers"),
     .target(
       name: "KwiftC",
       dependencies: []),

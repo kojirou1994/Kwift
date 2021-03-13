@@ -178,4 +178,10 @@ class CollectionExtensionTests: XCTestCase {
     let str = "ABCD"
     XCTAssertEqual(str.utf8.utf8String, String(decoding: str.utf8, as: UTF8.self))
   }
+
+  func testMutateEach() {
+    var array = Array(1...9)
+    array.mutateEach { $0 += 1}
+    XCTAssertEqual(array, Array(2...10))
+  }
 }

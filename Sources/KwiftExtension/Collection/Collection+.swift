@@ -103,19 +103,19 @@ extension Collection where Element: BidirectionalCollection, Element.Element: Eq
 
 extension Collection where Element: Equatable {
 
-    @inlinable
-    public func indexes(of element: Element) -> [Index] {
-        indexes(where: {$0 == element})
-    }
+  @inlinable
+  public func indexes(of element: Element) -> [Index] {
+    indexes(where: {$0 == element})
+  }
 
 }
 
 extension Collection {
 
-    @inlinable
-    public func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
-      try indices.filter { try predicate(self[$0]) }
-    }
+  @inlinable
+  public func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
+    try indices.filter { try predicate(self[$0]) }
+  }
 
 }
 

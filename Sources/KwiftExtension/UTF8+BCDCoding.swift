@@ -1,27 +1,24 @@
-public extension UInt8 {
-    
-    var bcdEncoded: UInt8 {
-        var nibble2: UInt8 = 0
-        var nibble1: UInt8 = 0
-        var result: UInt8 = 0
-        
-        if self > 153 { //BCD cannot be greater than 0b10011001, i.e. d153, which translates to BCD 99
-            return 0
-        }
-        if self > 9 {
-            nibble1 = (self / 10) << 4
-            nibble2 = (self % 10)
-            result = nibble1 ^ nibble2
-        }
-        if self < 10 {
-            result = self
-        }
-        
-        return result
+import Precondition
+
+public enum BCDCoding {
+
+  // 99 -> 0b10011001
+  public static func encode(_ value: UInt8) throws -> UInt8 {
+    try preconditionOrThrow((0...99).contains(value), "BCD value \(value) overflows.")
+
+    if _slowPath(value < 10) {
+      return value
     }
-    
-    var bcdDecoded: UInt8 {
-        ((self >> 4) * 10) + (self & 0x0F)
-    }
-    
+    return ((value / 10) << 4) ^ (value % 10)
+  }
+
+  public static func decode(_ value: UInt8) throws -> UInt8 {
+    let left = value >> 4
+    let right = value & 0x0F
+
+    try preconditionOrThrow((0...9).contains(left), "Encoded BCD value left part \(left) overflows.")
+    try preconditionOrThrow((0...9).contains(right), "Encoded BCD value right part \(right) overflows.")
+
+    return (left * 10) + right
+  }
 }

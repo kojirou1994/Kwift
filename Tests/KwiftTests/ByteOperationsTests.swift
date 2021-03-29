@@ -59,6 +59,9 @@ class ByteOperationsTests: XCTestCase {
     let number = UInt.random(in: 0..<UInt.max)
     let bigEndianBytes = number.toBytes(endian: .big)
     var reader = BitReader(number)
+
+    XCTAssertEqual(reader.offset, 0)
+
     XCTAssertNil(reader.read(UInt8(UInt.bitWidth + 1)))
     bigEndianBytes.forEach { byte in
       let readByte = reader.read(8)
@@ -84,6 +87,26 @@ class ByteOperationsTests: XCTestCase {
     zeroReader.offset = 0
     while !zeroReader.isAtEnd {
       XCTAssertTrue(!zeroReader.readBool(zeroValue: false)!)
+    }
+
+    let uint64 = 0x01020304_05060708 as UInt64
+    var uint64Reader = BitReader(uint64)
+    var expectedResult: UInt8 = 0x01
+    while let byte = uint64Reader.readByte() {
+      XCTAssertEqual(byte, expectedResult)
+      expectedResult += 1
+    }
+
+    uint64Reader.offset = 0
+    XCTAssertEqual(uint64Reader.readAll(), uint64)
+
+    var boolReader = BitReader(0b11111111 as UInt8)
+    while !boolReader.isAtEnd {
+      XCTAssertEqual(boolReader.readBool(zeroValue: true), false)
+    }
+    boolReader.offset = 0
+    while !boolReader.isAtEnd {
+      XCTAssertEqual(boolReader.readBool(zeroValue: false), true)
     }
   }
 

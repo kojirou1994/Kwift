@@ -25,10 +25,23 @@ public protocol ByteRegionReaderProtocol {
 public extension ByteRegionReaderProtocol {
 
   @inlinable
+  mutating func readInteger<T: FixedWidthInteger>(bytesCount: Int, endian: Endianness = .big, as: T.Type = T.self) throws -> T {
+    precondition(0...MemoryLayout<T>.size ~= bytesCount)
+    if _slowPath(bytesCount == 0) {
+      return 0
+    }
+    var value: T = 0
+    try withUnsafeMutableBytes(of: &value) { ptr in
+      _ = try read(bytesCount).copyBytes(to: ptr)
+    }
+    return endian.convert(value)
+  }
+
+  @inlinable
   mutating func readInteger<T: FixedWidthInteger>(endian: Endianness = .big, as: T.Type = T.self) throws -> T {
     var value: T = 0
-    try withUnsafeBytes(of: &value) { ptr in
-      _ = try read(MemoryLayout<T>.size).copyBytes(to: .init(mutating: ptr))
+    try withUnsafeMutableBytes(of: &value) { ptr in
+      _ = try read(MemoryLayout<T>.size).copyBytes(to:  ptr)
     }
     return endian.convert(value)
   }
@@ -45,6 +58,11 @@ public extension ByteRegionReaderProtocol {
   @inlinable
   mutating func readAsByteReader(_ count: Int) throws -> ByteReader<ByteRegion> {
     try .init(read(count))
+  }
+
+  @inlinable
+  mutating func readAsBitReader<T: FixedWidthInteger>(_ type: T.Type, endian: Endianness = .big) throws -> BitReader<T> {
+    try .init(readInteger(endian: endian))
   }
 
   @inlinable

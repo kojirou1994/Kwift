@@ -22,7 +22,7 @@ extension FileHandle: ByteRegionReaderProtocol {
 
   public func read(_ count: Int) throws -> Data {
     try checkCanRead(count: count)
-    if count == 0 {
+    if _slowPath(count == 0) {
       return Data()
     }
     var data: Data?

@@ -77,7 +77,7 @@ extension ByteReader: ByteRegionReaderProtocol {
   }
 
   @inlinable
-  @available(*, deprecated, renamed: "unreadBytesCount")
+  @available(*, unavailable, renamed: "unreadBytesCount")
   public var restBytesCount: Int {
     unreadBytesCount
   }

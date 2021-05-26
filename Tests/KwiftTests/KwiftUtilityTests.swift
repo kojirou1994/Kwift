@@ -69,21 +69,4 @@ class KwiftUtilityTests: XCTestCase {
     XCTAssertEqual(failureCount, expectedFailureCount)
 
   }
-
-  func testQueue() {
-    var queue = Queue<Int>()
-    XCTAssertTrue(queue.elementsEqual([Int]()))
-    XCTAssertEqual(queue.count, 0)
-    queue.append(contentsOf: 0...9)
-    XCTAssertEqual(queue.count, 10)
-    XCTAssertTrue(queue.elementsEqual(0...9))
-    XCTAssertEqual(queue.removeFirst(), 0)
-    XCTAssertEqual(queue.count, 9)
-    XCTAssertEqual(queue.removeFirst(), 1)
-    XCTAssertEqual(queue.count, 8)
-    XCTAssertTrue(queue.elementsEqual(2...9))
-    queue.append(contentsOf: 10...15)
-    XCTAssertTrue(queue.elementsEqual(2...15))
-    XCTAssertEqual(queue.count, 14)
-  }
 }

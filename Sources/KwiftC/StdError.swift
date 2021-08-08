@@ -16,7 +16,7 @@ public struct StdError: Error, CustomStringConvertible, Equatable, Hashable, Raw
 
   @_transparent
   public var description: String {
-    String(cString: strerror(rawValue))
+    strerror(rawValue).map { String(cString:$0) } ?? "strerror(\(rawValue)"
   }
   
 }

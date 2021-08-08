@@ -36,7 +36,7 @@ public struct LazySplitSequence<Base: Collection>: LazySequenceProtocol, Iterato
   }
 }
 
-extension Collection where Element: Equatable, SubSequence: Collection {
+extension Collection where Element: Equatable {
   public func lazySplit(separator: Element, omittingEmptySubsequences: Bool = true) -> LazySplitSequence<Self> {
     .init(base: self, separator: separator, omittingEmptySubsequences: omittingEmptySubsequences)
   }

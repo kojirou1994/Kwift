@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         images:
-        - swift:5.3
+        - swift:5.4
     container:
       image: ${{ matrix.images }}
     steps:

@@ -27,16 +27,13 @@ let package = Package(
       name: "PropertyWrappers",
       targets: ["PropertyWrappers"]),
   ],
-  dependencies: [],
+  dependencies: [
+    .package(url: "https://github.com/kojirou1994/ProxyInfo.git", from: "0.0.1"),
+  ],
   targets: [
     .target(name: "Precondition"),
     .target(name: "PropertyWrappers"),
-    .target(
-      name: "KwiftC",
-      dependencies: []),
-    .target(
-      name: "ProxyInfo",
-      dependencies: []),
+    .target(name: "KwiftC"),
     .target(
       name: "KwiftExtension",
       dependencies: [

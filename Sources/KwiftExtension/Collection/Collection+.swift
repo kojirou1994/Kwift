@@ -44,11 +44,6 @@ extension BidirectionalCollection where Element: Equatable {
 }
 extension Collection where Element: Collection, Element.Element: Equatable {
 
-  @available(*, deprecated, renamed: "commonPrefix")
-  public var longestCommonPrefix: Element.SubSequence? {
-    commonPrefix
-  }
-
   /// Longest common prefix, O(m*n)
   public var commonPrefix: Element.SubSequence? {
     guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
@@ -73,11 +68,6 @@ extension Collection where Element: Collection, Element.Element: Equatable {
 
 extension Collection where Element: BidirectionalCollection, Element.Element: Equatable {
 
-  @available(*, deprecated, renamed: "commonSuffix")
-  public var longestCommonSuffix: Element.SubSequence? {
-    commonSuffix
-  }
-
   /// Longest common suffix, O(m*n)
   public var commonSuffix: Element.SubSequence? {
     guard let firstValue = self.first, allSatisfy({!$0.isEmpty}) else {
@@ -101,19 +91,15 @@ extension Collection where Element: BidirectionalCollection, Element.Element: Eq
 
 }
 
-extension Collection where Element: Equatable {
+public extension Collection {
 
   @inlinable
-  public func indexes(of element: Element) -> [Index] {
+  func indexes(of element: Element) -> [Index] where Element: Equatable {
     indexes(where: {$0 == element})
   }
 
-}
-
-extension Collection {
-
   @inlinable
-  public func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
+  func indexes(where predicate: (Element) throws -> Bool) rethrows -> [Index] {
     try indices.filter { try predicate(self[$0]) }
   }
 

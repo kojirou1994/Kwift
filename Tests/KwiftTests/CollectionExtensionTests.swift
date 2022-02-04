@@ -8,33 +8,6 @@ class CollectionExtensionTests: XCTestCase {
     XCTAssertNotEqual(CollectionOfOne(1), CollectionOfOne(0))
   }
 
-  func testCollectionEmptyError() {
-    let emptyCollection = EmptyCollection<Int>()
-
-    // custom message
-    let errorMessage = "Error message"
-    XCTAssertThrowsError(try emptyCollection.notEmpty(errorMessage)) { error in
-      XCTAssertTrue(error is ErrorInCode)
-    }
-    // no message
-    XCTAssertThrowsError(try emptyCollection.notEmpty()) { error in
-      XCTAssertTrue(error is ErrorInCode)
-    }
-    // custom error
-    struct CustomError: Error {}
-
-    XCTAssertThrowsError(try emptyCollection.notEmpty(CustomError())) { error in
-      XCTAssertTrue(error is CustomError)
-    }
-
-    let nonEmptyCollection = CollectionOfOne(0)
-
-    XCTAssertNoThrow(try nonEmptyCollection.notEmpty())
-
-    XCTAssertEqual(nonEmptyCollection, try! nonEmptyCollection.notEmpty())
-    XCTAssertEqual(nonEmptyCollection, try! nonEmptyCollection.notEmpty(CustomError()))
-  }
-
   func testFindAllIndexes() {
     let array = Array(0..<100)
 

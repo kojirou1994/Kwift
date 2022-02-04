@@ -1,38 +1,34 @@
 public struct AnyCodingKey: CodingKey, Equatable {
 
-  public let value: TwoCase<String, Int>
 
   public init(stringValue: String) {
-    value = .first(stringValue)
+    self.stringValue = stringValue
+    self.intValue = .init(stringValue)
   }
 
   public init(intValue: Int) {
-    value = .second(intValue)
+    self.intValue = intValue
+    self.stringValue = intValue.description
   }
 
-  public var stringValue: String {
-    switch value {
-    case .first(let s): return s
-    case .second(let i): return i.description
-    }
-  }
+  public let stringValue: String
 
-  public var intValue: Int? { value.secondValue }
+  public let intValue: Int?
 
 }
 
 extension AnyCodingKey: ExpressibleByStringLiteral {
 
   public init(stringLiteral value: String) {
-    self.value = .first(value)
+    self.init(stringValue: value)
   }
-  
+
 }
 
 extension AnyCodingKey: ExpressibleByIntegerLiteral {
 
   public init(integerLiteral value: Int) {
-    self.value = .second(value)
+    self.init(intValue: value)
   }
 
 }

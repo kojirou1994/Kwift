@@ -28,8 +28,8 @@ class KwiftExtensionTests: XCTestCase {
       let namespace = UUID(uuidString: "f826f08b-6bd2-4625-a5a7-9140518bda08")!
       let name = "Kwift"
 
-      XCTAssertEqual(UUID.v3(namespace: namespace, name: name), "ea74b004-4b9a-3b58-9a39-fd5237d94956")
-      XCTAssertEqual(UUID.v5(namespace: namespace, name: name), "2091aa40-04ae-502e-9546-ec5117558eb4")
+      XCTAssertEqual(UUID.v3(namespace: namespace, name: name).uuidString.lowercased(), "ea74b004-4b9a-3b58-9a39-fd5237d94956")
+      XCTAssertEqual(UUID.v5(namespace: namespace, name: name).uuidString.lowercased(), "2091aa40-04ae-502e-9546-ec5117558eb4")
     }
     #endif
   }

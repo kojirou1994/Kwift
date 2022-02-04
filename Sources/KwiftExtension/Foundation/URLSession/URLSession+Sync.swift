@@ -11,7 +11,7 @@ extension URLSession {
   }
 
   public func resultTask(with request: URLRequest,
-                         completion: @escaping Result<DataTaskResponse, URLError>.Completion)
+                         completion: @escaping (Result<DataTaskResponse, URLError>) -> Void)
     -> URLSessionDataTask {
     dataTask(with: request) { data, response, error in
       if let error = error as? URLError {
@@ -27,14 +27,19 @@ extension URLSession {
 
   public func syncResultTask(with request: URLRequest) -> Result<DataTaskResponse, URLError> {
     let condition = NSCondition()
-
+    condition.lock()
     var result: Result<DataTaskResponse, URLError>?
     resultTask(with: request) { serverResult in
+      condition.lock()
       result = serverResult
       condition.signal()
+      condition.unlock()
     }.resume()
 
-    condition.wait()
+    while result == nil {
+      condition.wait()
+    }
+    condition.unlock()
 
     return result!
   }

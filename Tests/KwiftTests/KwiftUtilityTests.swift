@@ -3,6 +3,13 @@ import XCTest
 
 class KwiftUtilityTests: XCTestCase {
 
+  func testSnakeCaseConvert() {
+    let snakeCase = "scan_dirs"
+    let camel = "scanDirs"
+    XCTAssertEqual(SnakeCaseConvert.convertToSnakeCase(camel), snakeCase)
+    XCTAssertEqual(SnakeCaseConvert.convertFromSnakeCase(snakeCase), camel)
+  }
+
   func testAnyCodingKey() throws {
     struct Model: Codable, Equatable {
       let value: String
